@@ -1,43 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:resep/ui/screens/assets.dart' as app_asset;
+import 'package:resep/ui/assets.dart' as app_asset;
+
+enum RecipeCategory {
+  all,
+  appetizer,
+  mainCourse,
+  dessert,
+  cake;
+
+  String get label {
+    switch (this) {
+      case RecipeCategory.all:
+        return 'All';
+      case RecipeCategory.appetizer:
+        return 'Appetizer';
+      case RecipeCategory.mainCourse:
+        return 'Main Course';
+      case RecipeCategory.dessert:
+        return 'Dessert';
+      case RecipeCategory.cake:
+        return 'Cake';
+    }
+  }
+}
 
 class RecipeModel {
-  UniqueKey? id = UniqueKey();
-  String title, image;
-  List<String> ingredients;
-  List<String> steps;
-  String category;
+  final UniqueKey id;
+  final String title;
+  final String image;
+  final List<String> ingredients;
+  final List<String> steps;
+  final RecipeCategory category;
 
   RecipeModel({
-    this.id,
-    this.title = "",
-    this.image = "",
+    UniqueKey? id,
+    required this.title,
+    required this.image,
     this.ingredients = const [],
     this.steps = const [],
-    this.category = "",
-  });
+    this.category = RecipeCategory.appetizer,
+  }) : id = id ?? UniqueKey();
 
   static List<RecipeModel> recipes = [
     RecipeModel(
       title: "Sate Ayam",
       image: app_asset.sate,
-      ingredients: ["1.500 gr dada ayam / paha fillet", "2. Tusuk sate", "3. Seledri", "4.Daun Bawang", "5.Jeruk nipis"],
-      steps: [
-        "- Campur ayam fillet dengan bahan marinasi. Diamkan selama kuraang lebih 2 jam lebih bagus semalaman di kulkas",
-        "- Tusukkan ayam pada tusuk sate selang seling dengan batang seledri. Jika menggunakan jenis bakaran arang, rendam tusuk sate dengan air agar tidak mudah terbakar",
-        "- Lumuri sate dengan margarin atau mentega",
-        "- Kemudian panggang diatas pan sambil di bolak balk hingga matang",
-        "- Angkat dan sajikan selagi hangat dengan daun bawang, daun seledri, dan saus",
-        ],
-      category: "Appetizer",
+      ingredients: ["1. ayam", "2. kacang", "3. kecap"],
+      steps: ["- bakar", "- tusuk", "- makan", "- minum"],
+      category: RecipeCategory.appetizer,
+    ),
+    RecipeModel(
+      title: "Sate Kambing",
+      image: app_asset.sate,
+      ingredients: ["1. kambing", "2. kacang", "3. kecap"],
+      steps: ["- bakar", "- tusuk", "- makan"],
+      category: RecipeCategory.dessert,
+    ),
+    RecipeModel(
+      title: "Sate Sapi",
+      image: app_asset.sate,
+      ingredients: ["1. sapi", "2. kacang", "3. kecap"],
+      steps: ["- bakar", "- tusuk", "- makan"],
+      category: RecipeCategory.cake,
     ),
   ];
 
-  static List<String> get categories {
-    return recipes.map((e) => e.category).toSet().toList();
-  }
-
-  static List<RecipeModel> getByCategory(String category) {
+  static List<RecipeModel> getByCategory(RecipeCategory category) {
+    if (category == RecipeCategory.all) {
+      return recipes;
+    }
     return recipes.where((recipe) => recipe.category == category).toList();
   }
 }

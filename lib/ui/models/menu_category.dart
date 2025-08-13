@@ -1,17 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:resep/ui/screens/assets.dart' as app_assets;
+import 'package:resep/ui/models/recipe_model.dart';
 
 class MenuCategoryModel {
-  UniqueKey? id = UniqueKey();
-  String title;
-  String image;
+  final RecipeCategory title;
+  final String image;
 
-  MenuCategoryModel({this.id, this.title = "", this.image = ""});
+  MenuCategoryModel({
+    required this.title,
+    required this.image,
+  });
 
   static List<MenuCategoryModel> category = [
-    MenuCategoryModel(title: "Appetizer", image: app_assets.sate),
-    MenuCategoryModel(title: "Main Course", image: app_assets.sate),
-    MenuCategoryModel(title: "Dessert", image: app_assets.sate),
-    MenuCategoryModel(title: 'Cake', image: app_assets.sate),
+    MenuCategoryModel(title: RecipeCategory.appetizer, image: 'assets/sate.png'),
+    MenuCategoryModel(title: RecipeCategory.mainCourse, image: 'assets/sate.png'),
+    MenuCategoryModel(title: RecipeCategory.dessert, image: 'assets/sate.png'),
+    MenuCategoryModel(title: RecipeCategory.cake, image: 'assets/sate.png'),
   ];
 }
