@@ -9,6 +9,19 @@ import 'package:resep/ui/models/opsi_menu.dart';
 import 'package:resep/ui/screens/setting.dart';
 import 'package:resep/ui/screens/login.dart';
 
+// Placeholder untuk ProfileScreen (hapus jika sudah ada)
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: const Center(child: Text('Profile Screen')),
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,11 +33,106 @@ class _HomeScreenState extends State<HomeScreen> {
   RecipeCategory? selectedCategory = RecipeCategory.all;
   String searchQuery = '';
 
+  // Fungsi untuk menampilkan dialog konfirmasi logout
+  Future<bool?> _showLogoutConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        contentPadding: EdgeInsets.zero,
+        content: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFACDDB5), Color(0xFFF6F6F6)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Konfirmasi Logout',
+                style: GoogleFonts.ubuntu(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF02480F),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Apakah Anda yakin ingin keluar?',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF524D4D),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      'Tidak',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF524D4D),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF02480F),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      'Ya',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<RecipeModel> displayedRecipes = selectedCategory == RecipeCategory.all
-        ? RecipeModel.recipes
-        : RecipeModel.getByCategory(selectedCategory!);
+    final List<RecipeModel> displayedRecipes =
+        selectedCategory == RecipeCategory.all
+            ? RecipeModel.recipes
+            : RecipeModel.getByCategory(selectedCategory!);
 
     final List<RecipeModel> filteredRecipes = displayedRecipes.where((recipe) {
       return recipe.title.toLowerCase().contains(searchQuery.toLowerCase());
@@ -49,10 +157,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      offset: Offset(0, 5),
+                      offset: const Offset(0, 5),
                       blurRadius: 5,
                       spreadRadius: 0,
-                      color: Color(0xFF00000040),
+                      color: const Color(0xFF00000040),
                     ),
                   ],
                 ),
@@ -85,6 +193,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: [
                         IconButton(
+                          icon: const Icon(
+                            Icons.add,
+                            size: 30,
+                            color: Color(0xFF02480F),
+                          ),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
@@ -99,32 +212,73 @@ class _HomeScreenState extends State<HomeScreen> {
                               setState(() {}); // Refresh UI after adding recipe
                             });
                           },
-                          icon: const Icon(Icons.add, size: 30, color: Color(0xFF02480F)),
+                          splashColor: const Color(0xFF48742C).withOpacity(0.4),
+                          padding: const EdgeInsets.all(10),
                         ),
+                        const SizedBox(width: 10),
                         PopupMenuButton<String>(
-                          icon: const Icon(Icons.menu, size: 30, color: Color(0xFF02480F)),
-                          onSelected: (value) {
+                          icon: const Icon(
+                            Icons.menu,
+                            size: 30,
+                            color: Color(0xFF02480F),
+                          ),
+                          color: const Color(0xFFF6F6F6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            side: const BorderSide(
+                              color: Color(0xFF6B6767),
+                              width: 1,
+                            ),
+                          ),
+                          elevation: 6,
+                          splashRadius: 24,
+                          offset: const Offset(0, 40),
+                          onSelected: (value) async {
                             switch (value) {
                               case 'profile':
-                               
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ProfileScreen(),
+                                  ),
+                                );
                                 break;
                               case 'bookmark':
-                                // Tambahkan logika untuk bookmark
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Bookmark belum diimplementasikan',
+                                    ),
+                                  ),
+                                );
                                 break;
                               case 'notification':
-                                // Tambahkan logika untuk notifikasi
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Notification belum diimplementasikan',
+                                    ),
+                                  ),
+                                );
                                 break;
                               case 'settings':
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => SettingsScreen()),
+                                  MaterialPageRoute(
+                                    builder: (context) => const SettingsScreen(),
+                                  ),
                                 );
                                 break;
                               case 'exit':
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>Login()),
-                                );
+                                final shouldLogout = await _showLogoutConfirmationDialog(context);
+                                if (shouldLogout == true) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const Login(),
+                                    ),
+                                  );
+                                }
                                 break;
                             }
                           },
@@ -132,9 +286,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             return OpsiMenu.opsiMenu.map((opsi) {
                               return PopupMenuItem<String>(
                                 value: opsi.value,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                                 child: ListTile(
-                                  leading: Icon(opsi.icon),
-                                  title: Text(opsi.title),
+                                  leading: Icon(
+                                    opsi.icon,
+                                    color: const Color(0xFF524D4D),
+                                    size: 37,
+                                  ),
+                                  title: Text(
+                                    opsi.title,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF524D4D),
+                                    ),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
                                 ),
                               );
                             }).toList();
@@ -147,7 +317,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             // Search Bar
             Center(
               child: SizedBox(
@@ -166,14 +335,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF6B6767),
+                        color: const Color(0xFF6B6767),
                       ),
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 24),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Colors.grey,
+                        size: 24,
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide(color: Color(0xFF58545429), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF58545429),
+                          width: 2,
+                        ),
                       ),
                     ),
                     style: const TextStyle(color: Colors.black),
@@ -181,9 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             // Category List
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -220,7 +394,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             // Recommended Recipe Title
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -232,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.ubuntu(
                       fontSize: 24,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF524D4D),
+                      color: const Color(0xFF524D4D),
                       shadows: [
                         Shadow(
                           offset: Offset(0, 5),
@@ -249,7 +422,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             // Recipe Grid
             Expanded(
               child: filteredRecipes.isEmpty
