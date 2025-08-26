@@ -1,53 +1,84 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:resep/ui/models/recipe_model.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ServiceMakanan {
   final supabase = Supabase.instance.client;
 
+  /// Tambah makanan baru ke Supabase dengan upload gambar
   Future<void> tambahMakanan({
     required String kategori,
     required String nama,
     required String bahan,
     required String langkah,
-    String? gambarUrl,
+    XFile? gambarFile,
   }) async {
+    print('Memulai tambahMakanan: kategori=$kategori, nama=$nama');
+    if (kategori.isEmpty || nama.isEmpty || bahan.isEmpty || langkah.isEmpty) {
+      print('Validasi gagal: Semua field wajib diisi');
+      throw Exception('Semua field wajib diisi');
+    }
     final userId = supabase.auth.currentUser?.id;
-    if (userId == null) throw Exception('User belum login');
+    if (userId == null) {
+      print('Error: User belum login');
+      throw Exception('User belum login');
+    }
 
-    await supabase.from('makanan').insert({
-      'user_id': userId,
-      'kategori': kategori,
-      'nama': nama,
-      'bahan': bahan,
-      'langkah': langkah,
-      'gambar_url': gambarUrl ?? '',
-    });
+    String? gambarUrl;
+    if (gambarFile != null) {
+      final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final path = '$userId/$fileName'; // Perbaikan: hapus 'makanan/' dari path
+      print('Mengunggah gambar ke: $path');
+      try {
+        if (kIsWeb) {
+          final bytes = await gambarFile.readAsBytes();
+          print('Mengunggah sebagai binary untuk web');
+          await supabase.storage.from('makanan').uploadBinary(path, bytes);
+        } else {
+          print('Mengunggah sebagai file untuk mobile');
+          await supabase.storage.from('makanan').upload(path, File(gambarFile.path));
+        }
+        gambarUrl = supabase.storage.from('makanan').getPublicUrl(path);
+        print('Gambar diunggah: $gambarUrl');
+      } on StorageException catch (e) {
+        print('StorageException: ${e.message}');
+        throw Exception('Gagal mengunggah gambar: ${e.message}');
+      }
+    } else {
+      print('Tidak ada gambar yang diunggah');
+    }
+
+    print('Menyimpan data ke tabel makanan...');
+    try {
+      await supabase.from('makanan').insert({
+        'user_id': userId,
+        'kategori': kategori,
+        'nama': nama,
+        'bahan': bahan,
+        'langkah': langkah,
+        'gambar_url': gambarUrl,
+      });
+      print('Data berhasil disimpan ke tabel makanan');
+    } on PostgrestException catch (e) {
+      print('PostgrestException: ${e.message}');
+      throw Exception('Gagal menyimpan data: ${e.message}');
+    }
   }
 
-  /// Ambil semua makanan dari Supabase
-  Future<List<RecipeModel>> fetchRecipes() async {
+  /// Ambil semua makanan dari Supabase dengan pagination
+  Future<List<RecipeModel>> fetchRecipes({int page = 0, int limit = 20}) async {
     try {
-      final response = await supabase.from('makanan').select();
-      return (response as List).map((data) {
-        return RecipeModel(
-          id: data['id'], // pakai ID dari database
-          title: data['nama'] ?? '',
-          image: data['gambar_url'] ?? '',
-         ingredients: (data['bahan'] ?? '')
-    .toString()
-    .split('\n')
-    .where((e) => e.trim().isNotEmpty)
-    .toList(),
-
-steps: (data['langkah'] ?? '')
-    .toString()
-    .split('\n')
-    .where((e) => e.trim().isNotEmpty)
-    .toList(),
-
-          category: data['kategori'] ?? '',
-        );
-      }).toList();
+      final response = await supabase
+          .from('makanan')
+          .select()
+          .range(page * limit, (page + 1) * limit - 1);
+      return (response as List)
+          .map((data) => RecipeModel.fromMap(data))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw Exception('Gagal mengambil data makanan: ${e.message}');
     } catch (e) {
       throw Exception('Gagal mengambil data makanan: $e');
     }
@@ -64,12 +95,64 @@ steps: (data['langkah'] ?? '')
       final kategoriUnik = <String>{};
       for (var item in response as List) {
         if (item['kategori'] != null) {
-          kategoriUnik.add(item['kategori']);
+          kategoriUnik.add(item['kategori'] as String);
         }
       }
       return kategoriUnik.toList();
+    } on PostgrestException catch (e) {
+      throw Exception('Gagal mengambil kategori: ${e.message}');
     } catch (e) {
       throw Exception('Gagal mengambil kategori: $e');
     }
+  }
+
+  /// Update makanan berdasarkan ID
+  Future<void> updateMakanan({
+    required int id,
+    String? kategori,
+    String? nama,
+    String? bahan,
+    String? langkah,
+    XFile? gambarFile,
+  }) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User belum login');
+
+    String? gambarUrl;
+    if (gambarFile != null) {
+      final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final path = '$userId/$fileName'; // Perbaikan: hapus 'makanan/' dari path
+      try {
+        if (kIsWeb) {
+          final bytes = await gambarFile.readAsBytes();
+          await supabase.storage.from('makanan').uploadBinary(path, bytes);
+        } else {
+          await supabase.storage.from('makanan').upload(path, File(gambarFile.path));
+        }
+        gambarUrl = supabase.storage.from('makanan').getPublicUrl(path);
+      } on StorageException catch (e) {
+        throw Exception('Gagal mengunggah gambar: ${e.message}');
+      }
+    }
+
+    final updates = {
+      if (kategori != null && kategori.isNotEmpty) 'kategori': kategori,
+      if (nama != null && nama.isNotEmpty) 'nama': nama,
+      if (bahan != null && bahan.isNotEmpty) 'bahan': bahan,
+      if (langkah != null && langkah.isNotEmpty) 'langkah': langkah,
+      if (gambarUrl != null) 'gambar_url': gambarUrl,
+    };
+
+    if (updates.isEmpty) throw Exception('Tidak ada data untuk diperbarui');
+
+    await supabase.from('makanan').update(updates).eq('id', id).eq('user_id', userId);
+  }
+
+  /// Hapus makanan berdasarkan ID
+  Future<void> deleteMakanan(int id) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User belum login');
+
+    await supabase.from('makanan').delete().eq('id', id).eq('user_id', userId);
   }
 }

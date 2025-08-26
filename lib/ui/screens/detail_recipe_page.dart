@@ -1,53 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:resep/ui/models/recipe_model.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../models/recipe_model.dart';
 
 class DetailRecipePage extends StatelessWidget {
-  const DetailRecipePage({Key? key, required this.recipe}) : super(key: key);
-
   final RecipeModel recipe;
+  final bool isBookmarked;
+
+  const DetailRecipePage({
+    Key? key,
+    required this.recipe,
+    required this.isBookmarked,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        body: Column(
-          children: [
-            Stack(
-              children: [
-                Image.asset(
-                  recipe.image,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
+        backgroundColor: Colors.grey[100],
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 280,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(
+                  recipe.title,
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                 ),
-                Positioned(
-                  top: 30,
-                  left: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                background: Hero(
+                  tag: 'recipe_image_${recipe.id}',
+                  child: Image.network(
+                    recipe.image,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(color: Colors.grey, child: const Icon(Icons.fastfood, size: 100)),
                   ),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, !isBookmarked);
+                  },
                 ),
               ],
             ),
-            Container(
-              color: Colors.white,
-              child: const TabBar(
-                tabs: [
-                  Tab(text: "Bahan-bahan"),
-                  Tab(text: "Langkah-langkah"),
-                ],
-                indicatorColor: Colors.green,
-                labelColor: Colors.green,
-                unselectedLabelColor: Colors.grey,
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SingleChildScrollView(child: buildBahanSection()),
-                  SingleChildScrollView(child: buildLangkahSection()),
+          
+                  // Tab menu
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        )
+                      ],
+                    ),
+                    child: const TabBar(
+                      labelColor: Color(0xFF02480F),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF02480F),
+                      tabs: [
+                        Tab(text: "Bahan"),
+                        Tab(text: "Langkah"),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: TabBarView(
+                      children: [
+                        SingleChildScrollView(child: _BahanSection()),
+                        SingleChildScrollView(child: _LangkahSection()),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -56,84 +96,80 @@ class DetailRecipePage extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget buildBahanSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                recipe.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+class _BahanSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final recipe = (context.findAncestorWidgetOfExactType<DetailRecipePage>())!.recipe;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle("Bahan-bahan", Icons.local_grocery_store),
+          const SizedBox(height: 12),
+          ...recipe.ingredients.map((bahan) => AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(bahan, style: GoogleFonts.poppins(fontSize: 15)),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Bahan-bahan",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 10),
-              ...recipe.ingredients.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
-                  child: Text(item, style: const TextStyle(color: Colors.grey)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+              )),
+        ],
+      ),
     );
   }
+}
 
-  Widget buildLangkahSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                recipe.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+class _LangkahSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final recipe = (context.findAncestorWidgetOfExactType<DetailRecipePage>())!.recipe;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle("Langkah Memasak", Icons.menu_book),
+          const SizedBox(height: 12),
+          ...recipe.steps.asMap().entries.map((entry) {
+            final index = entry.key + 1;
+            final langkah = entry.value;
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF02480F),
+                  child: Text(
+                    "$index",
+                    style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                title: Text(
+                  langkah,
+                  style: GoogleFonts.poppins(fontSize: 15),
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
-                "Langkah-langkah",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 10),
-              ...recipe.steps.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
-                  child: Text(item, style: const TextStyle(color: Colors.grey)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+            );
+          }),
+        ],
+      ),
     );
   }
+}
+
+Widget _sectionTitle(String title, IconData icon) {
+  return Row(
+    children: [
+      Icon(icon, color: const Color(0xFF48742C), size: 22),
+      const SizedBox(width: 8),
+      Text(title, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+    ],
+  );
 }

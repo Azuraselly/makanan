@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 version: 1.0.0+1
@@ -13,17 +13,21 @@ environment:
 
 # Dependencies specify other packages that your package needs in order to work.
 dependencies:
+  cached_network_image: ^3.4.1
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
   google_fonts: any
-  supabase_flutter: ^2.9.1
   image_picker: ^1.0.7
+  supabase_flutter: ^2.9.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
+  flutter_localization: ^0.3.3
   flutter_test:
     sdk: flutter
+  get: ^4.7.2
+  shimmer: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -43,6 +47,8 @@ flutter:
     - assets/pancake.png
     - assets/ikan_bakar.png
     - assets/ayam_bakar.png
+    - assets/translations/id.json
+    - assets/translations/en.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see

@@ -1,0 +1,97 @@
+{
+    "loginPage": {
+      "appName": "L’Atelier du Chef",
+      "subtitle": "BENGKEL SI KOKI",
+      "description": "Sudah siap memperkaya koleksi masakan di rumah? Ayo, lihat semua resep yang kami sajikan dan temukan ide-ide baru untuk setiap waktu makanmu!",
+      "createAccountButton": "Buat Akun",
+      "loginButton": "Masuk",
+      "emailLabel": "Email",
+      "emailHint": "contoh@domain.com",
+      "emailEmptyError": "Email tidak boleh kosong",
+      "emailInvalidError": "Format email tidak valid",
+      "nameLabel": "Nama",
+      "nameHint": "Nama lengkap",
+      "nameEmptyError": "Nama tidak boleh kosong",
+      "bioLabel": "Bio",
+      "bioHint": "Deskripsi singkat tentang diri Anda",
+      "bioEmptyError": "Bio tidak boleh kosong",
+      "passwordLabel": "Kata Sandi",
+      "passwordHint": "Masukkan kata sandi",
+      "passwordEmptyError": "Kata sandi tidak boleh kosong",
+      "passwordMinLengthError": "Kata sandi minimal 6 karakter",
+      "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+      "confirmPasswordHint": "Masukkan kata sandi lagi",
+      "confirmPasswordEmptyError": "Konfirmasi kata sandi tidak boleh kosong",
+      "confirmPasswordMismatchError": "Kata sandi tidak cocok",
+      "loginFailedTitle": "Gagal Masuk",
+      "loginFailedContent": "Akun tidak ada atau kata sandi salah.",
+      "registerFailedTitle": "Gagal Mendaftar",
+      "registerFailedContent": "Akun sudah terdaftar. Gunakan email lain atau masuk.",
+      "genericErrorTitle": "Terjadi kesalahan",
+      "genericErrorContent": "Terjadi kesalahan. Silakan coba lagi.",
+      "switchAuthTextLogin": "Belum punya akun? ",
+      "switchAuthTextRegister": "Sudah punya akun? ",
+      "switchAuthButton": "Ganti"
+    },
+    "profilePage": {
+      "title": "Profil",
+      "editProfileButton": "Edit Profil",
+      "postsLabel": "Postingan",
+      "emptyRecipeMessage": "Belum ada resep yang kamu buat 🍳",
+      "recipeSectionTitle": "Resep Saya",
+      "saveButton": "Simpan",
+      "nameLabel": "Nama",
+      "nameEmptyError": "Nama wajib diisi",
+      "bioLabel": "Bio"
+    },
+    "bookmarkPage": {
+      "title": "Bookmark",
+      "emptyStateMessage": "Belum ada resep tersimpan",
+      "emptyStateIconDescription": "Belum ada resep tersimpan",
+      "errorMessage": "Terjadi kesalahan: {{error}}",
+      "categoryLabel": "Kategori",
+      "bookmarkAdded": "Resep disimpan ke bookmark!",
+      "bookmarkRemoved": "Resep dihapus dari bookmark!"
+    },
+    "detailRecipePage": {
+      "ingredientsTab": "Bahan",
+      "stepsTab": "Langkah",
+      "ingredientsTitle": "Bahan-bahan",
+      "stepsTitle": "Langkah Memasak",
+      "bookmarkAdded": "Resep disimpan ke bookmark!",
+      "bookmarkRemoved": "Resep dihapus dari bookmark!"
+    },
+    "foodPage": {
+      "addRecipeButton": "Tambah Resep",
+      "categoryFilter": "Kategori",
+      "searchHint": "Cari resep...",
+      "emptyStateMessage": "Belum ada resep",
+      "loadingMessage": "Memuat resep...",
+      "errorMessage": "Terjadi kesalahan: {{error}}"
+    },
+    "common": {
+      "loading": "Memuat...",
+      "ok": "OK",
+      "cancel": "Batal",
+      "delete": "Hapus",
+      "edit": "Ubah",
+      "back": "Kembali",
+      "loginRequired": "Silakan login untuk menyimpan resep!",
+      "errorOccurred": "Terjadi kesalahan: {{error}}"
+    },
+    "recipeCategory": {
+      "all": "Semua",
+      "appetizer": "Appetizer",
+      "mainCourse": "Main Course",
+      "dessert": "Dessert",
+      "cake": "Cake"
+    },
+    "serviceMakanan": {
+      "allFieldsRequired": "Semua field wajib diisi",
+      "userNotLoggedIn": "User belum login",
+      "uploadingImage": "Mengunggah gambar...",
+      "savingData": "Menyimpan data ke tabel makanan...",
+      "updateNoData": "Tidak ada data untuk diperbarui",
+      "deleteSuccess": "Resep berhasil dihapus"
+    }
+  }

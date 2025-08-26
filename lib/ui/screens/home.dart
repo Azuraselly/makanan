@@ -4,23 +4,13 @@ import 'package:resep/ui/components/food_card.dart';
 import 'package:resep/ui/components/menu_category_button.dart';
 import 'package:resep/ui/models/menu_category.dart';
 import 'package:resep/ui/models/recipe_model.dart';
+import 'package:resep/ui/screens/bookmark_page.dart';
 import 'package:resep/ui/screens/bottom_sheet.dart';
+import 'package:resep/ui/screens/language_page.dart';
 import 'package:resep/ui/models/opsi_menu.dart';
-import 'package:resep/ui/screens/setting.dart';
+import 'package:resep/ui/screens/profile_page.dart';
 import 'package:resep/ui/screens/login.dart';
-
-// Placeholder untuk ProfileScreen (hapus jika sudah ada)
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: const Center(child: Text('Profile Screen')),
-    );
-  }
-}
+import 'package:resep/services/service_makanan.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,107 +22,36 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   RecipeCategory? selectedCategory = RecipeCategory.all;
   String searchQuery = '';
+  final ServiceMakanan _serviceMakanan = ServiceMakanan();
 
-  // Fungsi untuk menampilkan dialog konfirmasi logout
-  Future<bool?> _showLogoutConfirmationDialog(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Colors.white,
-        contentPadding: EdgeInsets.zero,
-        content: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFACDDB5), Color(0xFFF6F6F6)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Konfirmasi Logout',
-                style: GoogleFonts.ubuntu(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF02480F),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Apakah Anda yakin ingin keluar?',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF524D4D),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Text(
-                      'Tidak',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF524D4D),
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF02480F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Text(
-                      'Ya',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  List<RecipeModel> allRecipes = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecipes();
+  }
+
+  Future<void> _loadRecipes() async {
+    setState(() => isLoading = true);
+    try {
+      final recipes = await _serviceMakanan.fetchRecipes();
+      setState(() {
+        allRecipes = recipes;
+      });
+    } catch (e) {
+      print("Error load recipes: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }               
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<RecipeModel> displayedRecipes =
-        selectedCategory == RecipeCategory.all
-            ? RecipeModel.recipes
-            : RecipeModel.getByCategory(selectedCategory!);
+    final List<RecipeModel> displayedRecipes = selectedCategory == RecipeCategory.all
+        ? allRecipes
+        : allRecipes.where((recipe) => recipe.category == selectedCategory!.name).toList();
 
     final List<RecipeModel> filteredRecipes = displayedRecipes.where((recipe) {
       return recipe.title.toLowerCase().contains(searchQuery.toLowerCase());
@@ -151,22 +70,22 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 35),
+            // Header + tombol tambah
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      offset: const Offset(0, 5),
+                      offset: Offset(0, 5),
                       blurRadius: 5,
                       spreadRadius: 0,
-                      color: const Color(0xFF00000040),
+                      color: Color(0xFF00000040),
                     ),
                   ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     RichText(
                       text: TextSpan(
@@ -193,92 +112,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(
-                            Icons.add,
-                            size: 30,
-                            color: Color(0xFF02480F),
-                          ),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20),
-                                ),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                               ),
                               builder: (context) => TambahResepBottomSheet(),
-                            ).then((_) {
-                              setState(() {}); // Refresh UI after adding recipe
-                            });
+                            ).then((_) => _loadRecipes()); // refresh setelah tambah resep
                           },
-                          splashColor: const Color(0xFF48742C).withOpacity(0.4),
-                          padding: const EdgeInsets.all(10),
+                          icon: const Icon(Icons.add, size: 30, color: Color(0xFF02480F)),
                         ),
-                        const SizedBox(width: 10),
                         PopupMenuButton<String>(
-                          icon: const Icon(
-                            Icons.menu,
-                            size: 30,
-                            color: Color(0xFF02480F),
-                          ),
-                          color: const Color(0xFFF6F6F6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            side: const BorderSide(
-                              color: Color(0xFF6B6767),
-                              width: 1,
-                            ),
-                          ),
-                          elevation: 6,
-                          splashRadius: 24,
-                          offset: const Offset(0, 40),
-                          onSelected: (value) async {
+                          icon: const Icon(Icons.menu, size: 30, color: Color(0xFF02480F)),
+                          onSelected: (value) {
                             switch (value) {
-                              case 'profile':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const ProfileScreen(),
-                                  ),
-                                );
+                               case 'profile':
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                                break;
+                              case 'Bahasa':
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => LanguagePage()));
                                 break;
                               case 'bookmark':
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Bookmark belum diimplementasikan',
-                                    ),
-                                  ),
-                                );
-                                break;
-                              case 'notification':
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Notification belum diimplementasikan',
-                                    ),
-                                  ),
-                                );
-                                break;
-                              case 'settings':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
-                                  ),
-                                );
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => BookmarkPage()));
                                 break;
                               case 'exit':
-                                final shouldLogout = await _showLogoutConfirmationDialog(context);
-                                if (shouldLogout == true) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Login(),
-                                    ),
-                                  );
-                                }
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
                                 break;
                             }
                           },
@@ -286,25 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             return OpsiMenu.opsiMenu.map((opsi) {
                               return PopupMenuItem<String>(
                                 value: opsi.value,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
                                 child: ListTile(
-                                  leading: Icon(
-                                    opsi.icon,
-                                    color: const Color(0xFF524D4D),
-                                    size: 37,
-                                  ),
-                                  title: Text(
-                                    opsi.title,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF524D4D),
-                                    ),
-                                  ),
-                                  contentPadding: EdgeInsets.zero,
+                                  leading: Icon(opsi.icon),
+                                  title: Text(opsi.title),
                                 ),
                               );
                             }).toList();
@@ -317,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
             // Search Bar
             Center(
               child: SizedBox(
@@ -325,11 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
+                    onChanged: (value) => setState(() => searchQuery = value),
                     decoration: InputDecoration(
                       hintText: 'Cari Resep...',
                       hintStyle: GoogleFonts.poppins(
@@ -337,19 +178,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF6B6767),
                       ),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Colors.grey,
-                        size: 24,
-                      ),
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 24),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF58545429),
-                          width: 2,
-                        ),
+                        borderSide: BorderSide(color: Color(0xFF58545429), width: 2),
                       ),
                     ),
                     style: const TextStyle(color: Colors.black),
@@ -358,7 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Category List
+
+            // Category
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -367,34 +202,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   MenuCategoryButton(
                     category: MenuCategoryModel(
                       title: RecipeCategory.all,
-                      image: 'sate.png',
+                      image: 'assets/sate.png',
                     ),
                     selectedCategory: selectedCategory,
-                    onCategorySelected: (category) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    },
+                    onCategorySelected: (category) => setState(() => selectedCategory = category),
                   ),
                   const SizedBox(width: 12),
                   ...MenuCategoryModel.category.map(
-                    (category) => Padding(
+                    ( category) => Padding(
                       padding: const EdgeInsets.only(right: 12.0),
                       child: MenuCategoryButton(
                         category: category,
                         selectedCategory: selectedCategory,
-                        onCategorySelected: (category) {
-                          setState(() {
-                            selectedCategory = category;
-                          });
-                        },
+                        onCategorySelected: (category) => setState(() => selectedCategory = category),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            // Recommended Recipe Title
+
+            // Title rekomendasi
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -405,40 +233,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.ubuntu(
                       fontSize: 24,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF524D4D),
+                      color: Color(0xFF524D4D),
                       shadows: [
-                        Shadow(
-                          offset: Offset(0, 5),
-                          blurRadius: 5,
-                          color: Color(0xFF00000040),
-                        ),
+                        Shadow(offset: Offset(0, 5), blurRadius: 5, color: Color(0xFF00000040)),
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('See All'),
-                  ),
+                  TextButton(onPressed: () {}, child: const Text('See All')),
                 ],
               ),
             ),
-            // Recipe Grid
+
+            // Grid resep
             Expanded(
-              child: filteredRecipes.isEmpty
-                  ? const Center(child: Text('Tidak ada resep ditemukan'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(8.0),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: filteredRecipes.length,
-                      itemBuilder: (context, index) {
-                        return FoodCard(recipe: filteredRecipes[index]);
-                      },
-                    ),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredRecipes.isEmpty
+                      ? const Center(child: Text('Tidak ada resep ditemukan'))
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(8.0),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: filteredRecipes.length,
+                          itemBuilder: (context, index) {
+                            return FoodCard(recipe: filteredRecipes[index]);
+                          },
+                        ),
             ),
           ],
         ),

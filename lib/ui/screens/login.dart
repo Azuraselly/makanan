@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:resep/services/supabase_service.dart';
+import 'package:resep/services/auth_services.dart';
 import 'package:resep/ui/screens/home.dart';
 
 class Login extends StatelessWidget {
@@ -91,30 +91,27 @@ class Login extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     Image.asset(
-                      'logo.png',
+                      'assets/logo.png',
                       width: 295,
                       height: 283,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 10),
                     _AuthButton(
-                      text: 'Create Account',
+                      text: 'Buat Akun',
                       color: const Color(0xFF02480F),
                       textColor: const Color(0xFFFFFFFF),
                       onTap: () => _showAuthModal(context, isLogin: false),
                       width: 296,
                       height: 50,
                       borderRadius: 30,
-                      
                     ),
-
                     _AuthButton(
-                      text: 'Login',
+                      text: 'Masuk',
                       color: Colors.white,
                       textColor: const Color(0xFF02480F),
                       borderColor: const Color(0xFF02480F),
                       onTap: () => _showAuthModal(context, isLogin: true),
-          
                     ),
                   ],
                 ),
@@ -162,14 +159,12 @@ class Login extends StatelessWidget {
                 ),
                 child: Form(
                   key: formKey,
-                  autovalidateMode: isLogin
-                      ? AutovalidateMode.onUserInteraction
-                      : AutovalidateMode.disabled,
+                  autovalidateMode: AutovalidateMode.disabled,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        isLogin ? 'Login' : 'Create Account',
+                        isLogin ? 'Masuk' : 'Buat Akun',
                         style: GoogleFonts.ubuntu(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -180,7 +175,8 @@ class Login extends StatelessWidget {
                       _AuthTextField(
                         controller: emailController,
                         label: 'Email',
-                        hint: 'info@example.com',
+                        hint: 'contoh@domain.com',
+                        prefixIcon: Icons.email_outlined,
                         validator: (value) => value == null || value.isEmpty
                             ? 'Email tidak boleh kosong'
                             : !RegExp(
@@ -195,6 +191,7 @@ class Login extends StatelessWidget {
                           controller: nameController,
                           label: 'Nama',
                           hint: 'Nama lengkap',
+                          prefixIcon: Icons.person_outline,
                           validator: (value) => value == null || value.isEmpty
                               ? 'Nama tidak boleh kosong'
                               : null,
@@ -203,7 +200,8 @@ class Login extends StatelessWidget {
                         _AuthTextField(
                           controller: bioController,
                           label: 'Bio',
-                          hint: 'Deskripsi singkat',
+                          hint: 'Deskripsi singkat tentang diri Anda',
+                          prefixIcon: Icons.info_outline,
                           validator: (value) => value == null || value.isEmpty
                               ? 'Bio tidak boleh kosong'
                               : null,
@@ -212,8 +210,9 @@ class Login extends StatelessWidget {
                       const SizedBox(height: 20),
                       _AuthTextField(
                         controller: passwordController,
-                        label: 'Password',
-                        hint: 'Password',
+                        label: 'Kata Sandi',
+                        hint: 'Masukkan kata sandi',
+                        prefixIcon: Icons.lock_outline,
                         obscureText: obscurePassword,
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -227,17 +226,18 @@ class Login extends StatelessWidget {
                           ),
                         ),
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Password tidak boleh kosong'
+                            ? 'Kata sandi tidak boleh kosong'
                             : value.length < 6
-                            ? 'Password minimal 6 karakter'
+                            ? 'Kata sandi minimal 6 karakter'
                             : null,
                       ),
                       if (!isLogin) ...[
                         const SizedBox(height: 20),
                         _AuthTextField(
                           controller: confirmPasswordController,
-                          label: 'Konfirmasi Password',
-                          hint: 'Konfirmasi password',
+                          label: 'Konfirmasi Kata Sandi',
+                          hint: 'Masukkan kata sandi lagi',
+                          prefixIcon: Icons.lock_outline,
                           obscureText: obscureConfirmPassword,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -252,15 +252,15 @@ class Login extends StatelessWidget {
                             ),
                           ),
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Konfirmasi password tidak boleh kosong'
+                              ? 'Konfirmasi kata sandi tidak boleh kosong'
                               : value != passwordController.text
-                              ? 'Password tidak cocok'
+                              ? 'Kata sandi tidak cocok'
                               : null,
                         ),
                       ],
                       const SizedBox(height: 20),
                       _AuthButton(
-                        text: isLogin ? 'Login' : 'Register',
+                        text: isLogin ? 'Masuk' : 'Daftar',
                         color: Colors.white,
                         textColor: const Color(0xFF02480F),
                         isLoading: isLoading,
@@ -292,13 +292,133 @@ class Login extends StatelessWidget {
                                       ),
                                     );
                                   } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error: ${e.toString()}'),
-                                      ),
-                                    );
                                     setState(() => isLoading = false);
+                                    if (isLogin &&
+                                        (e.toString().contains(
+                                              'invalid credentials',
+                                            ) ||
+                                            e.toString().contains(
+                                              'Invalid login credentials',
+                                            ))) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                            'Gagal Masuk',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          content: Text(
+                                            'Akun tidak ada atau kata sandi salah.',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 16,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text(
+                                                'OK',
+                                                style: GoogleFonts.ubuntu(
+                                                  fontSize: 16,
+                                                  color: const Color(
+                                                    0xFF02480F,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    } else if (!isLogin &&
+                                        (e.toString().contains(
+                                              'email already exists',
+                                            ) ||
+                                            e.toString().contains(
+                                              'Email already registered',
+                                            ))) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                            'Gagal Mendaftar',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          content: Text(
+                                            'Akun sudah terdaftar. Gunakan email lain atau masuk.',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 16,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text(
+                                                'OK',
+                                                style: GoogleFonts.ubuntu(
+                                                  fontSize: 16,
+                                                  color: const Color(
+                                                    0xFF02480F,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                            isLogin
+                                                ? 'Gagal Masuk'
+                                                : 'Gagal Mendaftar',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          content: Text(
+                                            'Terjadi kesalahan. Silakan coba lagi.',
+                                            style: GoogleFonts.ubuntu(
+                                              fontSize: 16,
+                                              color: const Color(0xFF02480F),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text(
+                                                'OK',
+                                                style: GoogleFonts.ubuntu(
+                                                  fontSize: 16,
+                                                  color: const Color(
+                                                    0xFF02480F,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
                                   }
+                                } else {
+                                  setState(() {});
                                 }
                               },
                       ),
@@ -308,9 +428,9 @@ class Login extends StatelessWidget {
                         children: [
                           Text(
                             isLogin
-                                ? 'Don’t have an account? '
-                                : 'Already have account? ',
-                            style:  GoogleFonts.ubuntu(
+                                ? 'Belum punya akun? '
+                                : 'Sudah punya akun? ',
+                            style: GoogleFonts.ubuntu(
                               fontSize: 16,
                               color: Color(0xFF02480F),
                             ),
@@ -321,7 +441,7 @@ class Login extends StatelessWidget {
                               _showAuthModal(context, isLogin: !isLogin);
                             },
                             child: const Text(
-                              'Switch',
+                              'Ganti',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
@@ -348,6 +468,7 @@ class _AuthTextField extends StatelessWidget {
   final String label;
   final String hint;
   final bool obscureText;
+  final IconData? prefixIcon;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
 
@@ -356,23 +477,74 @@ class _AuthTextField extends StatelessWidget {
     required this.label,
     required this.hint,
     this.obscureText = false,
+    this.prefixIcon,
     this.suffixIcon,
     this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
         validator: validator,
-        style: const TextStyle(color: Colors.black),
+        style: GoogleFonts.ubuntu(
+          color: const Color(0xFF02480F),
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
+          labelStyle: GoogleFonts.ubuntu(
+            color: const Color(0xFF02480F).withOpacity(0.7),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          hintStyle: GoogleFonts.ubuntu(
+            color: const Color(0xFF02480F).withOpacity(0.5),
+            fontSize: 14,
+          ),
+          prefixIcon: prefixIcon != null
+              ? Icon(
+                  prefixIcon,
+                  color: const Color(0xFF02480F).withOpacity(0.7),
+                  size: 24,
+                )
+              : null,
           suffixIcon: suffixIcon,
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.9),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: const Color(0xFF02480F).withOpacity(0.3),
+              width: 2,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Color(0xFF02480F), width: 2.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Colors.red, width: 2.5),
+          ),
+          errorStyle: GoogleFonts.ubuntu(
+            color: Colors.red,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
@@ -407,16 +579,23 @@ class _AuthButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 296,
-        height: 50,
+        width: width,
+        height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color,
           border: borderColor != null
               ? Border.all(color: borderColor!, width: 3)
               : null,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [BoxShadow(offset: Offset(0, 4), blurRadius: 5, spreadRadius: 0,color: Color(0xFF00000040))]
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 5,
+              spreadRadius: 0,
+              color: Color(0xFF00000040),
+            ),
+          ],
         ),
         child: isLoading
             ? const CircularProgressIndicator(color: Color(0xFF02480F))

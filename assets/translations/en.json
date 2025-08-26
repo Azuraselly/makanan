@@ -1,0 +1,97 @@
+{
+    "loginPage": {
+      "appName": "L’Atelier du Chef",
+      "subtitle": "CHEF'S WORKSHOP",
+      "description": "Ready to enrich your home cooking collection? Explore all the recipes we offer and find new ideas for every meal!",
+      "createAccountButton": "Create Account",
+      "loginButton": "Login",
+      "emailLabel": "Email",
+      "emailHint": "example@domain.com",
+      "emailEmptyError": "Email cannot be empty",
+      "emailInvalidError": "Invalid email format",
+      "nameLabel": "Name",
+      "nameHint": "Full name",
+      "nameEmptyError": "Name cannot be empty",
+      "bioLabel": "Bio",
+      "bioHint": "Short description about yourself",
+      "bioEmptyError": "Bio cannot be empty",
+      "passwordLabel": "Password",
+      "passwordHint": "Enter your password",
+      "passwordEmptyError": "Password cannot be empty",
+      "passwordMinLengthError": "Password must be at least 6 characters",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordHint": "Enter your password again",
+      "confirmPasswordEmptyError": "Confirm password cannot be empty",
+      "confirmPasswordMismatchError": "Passwords do not match",
+      "loginFailedTitle": "Login Failed",
+      "loginFailedContent": "Account does not exist or password is incorrect.",
+      "registerFailedTitle": "Registration Failed",
+      "registerFailedContent": "Account already exists. Use another email or login.",
+      "genericErrorTitle": "Error Occurred",
+      "genericErrorContent": "An error occurred. Please try again.",
+      "switchAuthTextLogin": "Don't have an account? ",
+      "switchAuthTextRegister": "Already have an account? ",
+      "switchAuthButton": "Switch"
+    },
+    "profilePage": {
+      "title": "Profile",
+      "editProfileButton": "Edit Profile",
+      "postsLabel": "Posts",
+      "emptyRecipeMessage": "You haven't created any recipes yet 🍳",
+      "recipeSectionTitle": "My Recipes",
+      "saveButton": "Save",
+      "nameLabel": "Name",
+      "nameEmptyError": "Name is required",
+      "bioLabel": "Bio"
+    },
+    "bookmarkPage": {
+      "title": "Bookmark",
+      "emptyStateMessage": "No saved recipes yet",
+      "emptyStateIconDescription": "No saved recipes",
+      "errorMessage": "Error occurred: {{error}}",
+      "categoryLabel": "Category",
+      "bookmarkAdded": "Recipe added to bookmark!",
+      "bookmarkRemoved": "Recipe removed from bookmark!"
+    },
+    "detailRecipePage": {
+      "ingredientsTab": "Ingredients",
+      "stepsTab": "Steps",
+      "ingredientsTitle": "Ingredients",
+      "stepsTitle": "Cooking Steps",
+      "bookmarkAdded": "Recipe added to bookmark!",
+      "bookmarkRemoved": "Recipe removed from bookmark!"
+    },
+    "foodPage": {
+      "addRecipeButton": "Add Recipe",
+      "categoryFilter": "Category",
+      "searchHint": "Search recipes...",
+      "emptyStateMessage": "No recipes yet",
+      "loadingMessage": "Loading recipes...",
+      "errorMessage": "An error occurred: {{error}}"
+    },
+    "common": {
+      "loading": "Loading...",
+      "ok": "OK",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "back": "Back",
+      "loginRequired": "Please login to save recipes!",
+      "errorOccurred": "An error occurred: {{error}}"
+    },
+    "recipeCategory": {
+      "all": "All",
+      "appetizer": "Appetizer",
+      "mainCourse": "Main Course",
+      "dessert": "Dessert",
+      "cake": "Cake"
+    },
+    "serviceMakanan": {
+      "allFieldsRequired": "All fields are required",
+      "userNotLoggedIn": "User not logged in",
+      "uploadingImage": "Uploading image...",
+      "savingData": "Saving data to recipe table...",
+      "updateNoData": "No data to update",
+      "deleteSuccess": "Recipe deleted successfully"
+    }
+  }
