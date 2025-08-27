@@ -1,28 +1,44 @@
+import 'package:flutter/material.dart';
+import 'package:resep/l10n/app_localizations.dart';
 
 enum RecipeCategory {
   all,
   appetizer,
   mainCourse,
-  dessert,
-  cake;
+  dessert;
 
-  String get label {
+  String getLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      // Fallback to default English labels if localization is unavailable
+      switch (this) {
+        case RecipeCategory.all:
+          return 'All';
+        case RecipeCategory.appetizer:
+          return 'Appetizer';
+        case RecipeCategory.mainCourse:
+          return 'Main Course';
+        case RecipeCategory.dessert:
+          return 'Dessert';
+      }
+    }
     switch (this) {
       case RecipeCategory.all:
-        return 'All';
+        return l10n.category_all;
       case RecipeCategory.appetizer:
-        return 'Appetizer';
+        return l10n.category_appetizer;
       case RecipeCategory.mainCourse:
-        return 'Main Course';
+        return l10n.category_mainCourse;
       case RecipeCategory.dessert:
-        return 'Dessert';
-      case RecipeCategory.cake:
-        return 'Cake';
+        return l10n.category_dessert;
     }
   }
 
-  // Convert string kategori dari DB ke enum
-  static RecipeCategory fromString(String value) {
+  // Convert string category from DB to enum
+  static RecipeCategory fromString(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return RecipeCategory.all;
+    }
     switch (value.toLowerCase()) {
       case 'appetizer':
         return RecipeCategory.appetizer;
@@ -30,8 +46,7 @@ enum RecipeCategory {
         return RecipeCategory.mainCourse;
       case 'dessert':
         return RecipeCategory.dessert;
-      case 'cake':
-        return RecipeCategory.cake;
+
       default:
         return RecipeCategory.all;
     }
@@ -39,7 +54,7 @@ enum RecipeCategory {
 }
 
 class RecipeModel {
-  final dynamic id; // bisa int atau String dari database
+  final dynamic id; // Can be int or String from database
   final String title;
   final String image;
   final List<String> ingredients;
@@ -55,7 +70,7 @@ class RecipeModel {
     this.category = RecipeCategory.appetizer,
   });
 
-  // Factory buat convert dari Supabase
+  // Factory to convert from Supabase
   factory RecipeModel.fromMap(Map<String, dynamic> data) {
     return RecipeModel(
       id: data['id'],
@@ -74,40 +89,4 @@ class RecipeModel {
       category: RecipeCategory.fromString(data['kategori'] ?? ''),
     );
   }
-
-  // Data dummy
-  static List<RecipeModel> recipes = [
-    RecipeModel(
-      id: 1,
-      title: "Sate Ayam",
-      image: "assets/images/sate.png",
-      ingredients: ["1. ayam", "2. kacang", "3. kecap"],
-      steps: ["- bakar", "- tusuk", "- makan", "- minum"],
-      category: RecipeCategory.appetizer,
-    ),
-    RecipeModel(
-      id: 2,
-      title: "Sate Kambing",
-      image: "assets/images/sate.png",
-      ingredients: ["1. kambing", "2. kacang", "3. kecap"],
-      steps: ["- bakar", "- tusuk", "- makan"],
-      category: RecipeCategory.dessert,
-    ),
-    RecipeModel(
-      id: 3,
-      title: "Sate Sapi",
-      image: "assets/images/sate.png",
-      ingredients: ["1. sapi", "2. kacang", "3. kecap"],
-      steps: ["- bakar", "- tusuk", "- makan"],
-      category: RecipeCategory.cake,
-    ),
-  ];
-
-  static List<RecipeModel> getByCategory(RecipeCategory category) {
-    if (category == RecipeCategory.all) {
-      return recipes;
-    }
-    return recipes.where((recipe) => recipe.category == category).toList();
-  }
 }
-

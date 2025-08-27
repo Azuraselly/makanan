@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resep/services/auth_services.dart';
 import 'package:resep/ui/screens/home.dart';
+import 'package:resep/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
 
+  Future<void> saveLocale(String languageCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('languageCode', languageCode);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Theme(
       data: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme().copyWith(
@@ -52,70 +61,108 @@ class Login extends StatelessWidget {
             ),
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'L’Atelier du Chef\n',
-                            style: GoogleFonts.ubuntu(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF02480F),
-                            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: l10n.appName,
+                                style: GoogleFonts.ubuntu(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF02480F),
+                                ),
+                              ),
+                              const TextSpan(text: '\n'),
+                              TextSpan(
+                                text: l10n.subtitle,
+                                style: GoogleFonts.ubuntu(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF02480F),
+                                ),
+                              ),
+                            ],
                           ),
-                          TextSpan(
-                            text: 'BENGKEL SI KOKI',
-                            style: GoogleFonts.ubuntu(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF02480F),
-                            ),
+                        ),
+                        Text(
+                          l10n.description,
+                          style: GoogleFonts.ubuntu(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF02480F),
                           ),
-                        ],
-                      ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Image.asset(
+                          'assets/logo.png',
+                          width: 295,
+                          height: 283,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 10),
+                        _AuthButton(
+                          text: l10n.createAccountButton,
+                          color: const Color(0xFF02480F),
+                          textColor: const Color(0xFFFFFFFF),
+                          onTap: () => _showAuthModal(context, isLogin: false),
+                          width: 296,
+                          height: 50,
+                          borderRadius: 30,
+                        ),
+                        _AuthButton(
+                          text: l10n.loginButton,
+                          color: Colors.white,
+                          textColor: const Color(0xFF02480F),
+                          borderColor: const Color(0xFF02480F),
+                          onTap: () => _showAuthModal(context, isLogin: true),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Sudah siap memperkaya koleksi masakan di rumah?\nAyo, lihat semua resep yang kami sajikan dan temukan ide-ide baru untuk setiap waktu makanmu!',
-                      style: GoogleFonts.ubuntu(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF02480F),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Image.asset(
-                      'assets/logo.png',
-                      width: 295,
-                      height: 283,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 10),
-                    _AuthButton(
-                      text: 'Buat Akun',
-                      color: const Color(0xFF02480F),
-                      textColor: const Color(0xFFFFFFFF),
-                      onTap: () => _showAuthModal(context, isLogin: false),
-                      width: 296,
-                      height: 50,
-                      borderRadius: 30,
-                    ),
-                    _AuthButton(
-                      text: 'Masuk',
-                      color: Colors.white,
-                      textColor: const Color(0xFF02480F),
-                      borderColor: const Color(0xFF02480F),
-                      onTap: () => _showAuthModal(context, isLogin: true),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: PopupMenuButton<Locale>(
+                    icon: Icon(Icons.language, color: Color(0xFF02480F)),
+                    onSelected: (Locale locale) {
+                      Get.updateLocale(locale);
+                      saveLocale(locale.languageCode);
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<Locale>(
+                        value: const Locale('en'),
+                        child: Row(
+                          children: [
+                            const Text('🇺🇸'),
+                            const SizedBox(width: 8),
+                            Text(l10n.languageEnglish),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<Locale>(
+                        value: const Locale('id'),
+                        child: Row(
+                          children: [
+                            const Text('🇮🇩'),
+                            const SizedBox(width: 8),
+                            Text(l10n.languageIndonesian),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -124,6 +171,7 @@ class Login extends StatelessWidget {
   }
 
   void _showAuthModal(BuildContext context, {required bool isLogin}) {
+    final l10n = AppLocalizations.of(context)!;
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
@@ -164,7 +212,7 @@ class Login extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        isLogin ? 'Masuk' : 'Buat Akun',
+                        isLogin ? l10n.loginButton : l10n.createAccountButton,
                         style: GoogleFonts.ubuntu(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -174,44 +222,44 @@ class Login extends StatelessWidget {
                       const SizedBox(height: 20),
                       _AuthTextField(
                         controller: emailController,
-                        label: 'Email',
-                        hint: 'contoh@domain.com',
+                        label: l10n.emailLabel,
+                        hint: l10n.emailHint,
                         prefixIcon: Icons.email_outlined,
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Email tidak boleh kosong'
+                            ? l10n.emailEmptyError
                             : !RegExp(
                                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                               ).hasMatch(value)
-                            ? 'Format email tidak valid'
+                            ? l10n.emailInvalidError
                             : null,
                       ),
                       if (!isLogin) ...[
                         const SizedBox(height: 20),
                         _AuthTextField(
                           controller: nameController,
-                          label: 'Nama',
-                          hint: 'Nama lengkap',
+                          label: l10n.nameLabel,
+                          hint: l10n.nameHint,
                           prefixIcon: Icons.person_outline,
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Nama tidak boleh kosong'
+                              ? l10n.nameEmptyError
                               : null,
                         ),
                         const SizedBox(height: 20),
                         _AuthTextField(
                           controller: bioController,
-                          label: 'Bio',
-                          hint: 'Deskripsi singkat tentang diri Anda',
+                          label: l10n.bioLabel,
+                          hint: l10n.bioHint,
                           prefixIcon: Icons.info_outline,
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Bio tidak boleh kosong'
+                              ? l10n.bioEmptyError
                               : null,
                         ),
                       ],
                       const SizedBox(height: 20),
                       _AuthTextField(
                         controller: passwordController,
-                        label: 'Kata Sandi',
-                        hint: 'Masukkan kata sandi',
+                        label: l10n.passwordLabel,
+                        hint: l10n.passwordHint,
                         prefixIcon: Icons.lock_outline,
                         obscureText: obscurePassword,
                         suffixIcon: IconButton(
@@ -226,17 +274,17 @@ class Login extends StatelessWidget {
                           ),
                         ),
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Kata sandi tidak boleh kosong'
+                            ? l10n.passwordEmptyError
                             : value.length < 6
-                            ? 'Kata sandi minimal 6 karakter'
+                            ? l10n.passwordMinLengthError
                             : null,
                       ),
                       if (!isLogin) ...[
                         const SizedBox(height: 20),
                         _AuthTextField(
                           controller: confirmPasswordController,
-                          label: 'Konfirmasi Kata Sandi',
-                          hint: 'Masukkan kata sandi lagi',
+                          label: l10n.confirmPasswordLabel,
+                          hint: l10n.confirmPasswordHint,
                           prefixIcon: Icons.lock_outline,
                           obscureText: obscureConfirmPassword,
                           suffixIcon: IconButton(
@@ -252,15 +300,15 @@ class Login extends StatelessWidget {
                             ),
                           ),
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Konfirmasi kata sandi tidak boleh kosong'
+                              ? l10n.confirmPasswordEmptyError
                               : value != passwordController.text
-                              ? 'Kata sandi tidak cocok'
+                              ? l10n.confirmPasswordMismatchError
                               : null,
                         ),
                       ],
                       const SizedBox(height: 20),
                       _AuthButton(
-                        text: isLogin ? 'Masuk' : 'Daftar',
+                        text: isLogin ? l10n.loginButton : l10n.createAccountButton,
                         color: Colors.white,
                         textColor: const Color(0xFF02480F),
                         isLoading: isLoading,
@@ -284,13 +332,7 @@ class Login extends StatelessWidget {
                                         bio: bioController.text,
                                       );
                                     }
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const HomeScreen(),
-                                      ),
-                                    );
+                                    Get.off(() => const HomeScreen());
                                   } catch (e) {
                                     setState(() => isLoading = false);
                                     if (isLogin &&
@@ -304,7 +346,7 @@ class Login extends StatelessWidget {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                           title: Text(
-                                            'Gagal Masuk',
+                                            l10n.loginFailedTitle,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -312,7 +354,7 @@ class Login extends StatelessWidget {
                                             ),
                                           ),
                                           content: Text(
-                                            'Akun tidak ada atau kata sandi salah.',
+                                            l10n.loginFailedContent,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 16,
                                               color: const Color(0xFF02480F),
@@ -323,7 +365,7 @@ class Login extends StatelessWidget {
                                               onPressed: () =>
                                                   Navigator.pop(context),
                                               child: Text(
-                                                'OK',
+                                                l10n.ok,
                                                 style: GoogleFonts.ubuntu(
                                                   fontSize: 16,
                                                   color: const Color(
@@ -346,7 +388,7 @@ class Login extends StatelessWidget {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                           title: Text(
-                                            'Gagal Mendaftar',
+                                            l10n.registerFailedTitle,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -354,7 +396,7 @@ class Login extends StatelessWidget {
                                             ),
                                           ),
                                           content: Text(
-                                            'Akun sudah terdaftar. Gunakan email lain atau masuk.',
+                                            l10n.registerFailedContent,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 16,
                                               color: const Color(0xFF02480F),
@@ -365,7 +407,7 @@ class Login extends StatelessWidget {
                                               onPressed: () =>
                                                   Navigator.pop(context),
                                               child: Text(
-                                                'OK',
+                                                l10n.ok,
                                                 style: GoogleFonts.ubuntu(
                                                   fontSize: 16,
                                                   color: const Color(
@@ -382,9 +424,7 @@ class Login extends StatelessWidget {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                           title: Text(
-                                            isLogin
-                                                ? 'Gagal Masuk'
-                                                : 'Gagal Mendaftar',
+                                            l10n.genericErrorTitle,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -392,7 +432,7 @@ class Login extends StatelessWidget {
                                             ),
                                           ),
                                           content: Text(
-                                            'Terjadi kesalahan. Silakan coba lagi.',
+                                            l10n.genericErrorContent,
                                             style: GoogleFonts.ubuntu(
                                               fontSize: 16,
                                               color: const Color(0xFF02480F),
@@ -403,7 +443,7 @@ class Login extends StatelessWidget {
                                               onPressed: () =>
                                                   Navigator.pop(context),
                                               child: Text(
-                                                'OK',
+                                                l10n.ok,
                                                 style: GoogleFonts.ubuntu(
                                                   fontSize: 16,
                                                   color: const Color(
@@ -428,11 +468,11 @@ class Login extends StatelessWidget {
                         children: [
                           Text(
                             isLogin
-                                ? 'Belum punya akun? '
-                                : 'Sudah punya akun? ',
+                                ? l10n.switchAuthTextLogin
+                                : l10n.switchAuthTextRegister,
                             style: GoogleFonts.ubuntu(
                               fontSize: 16,
-                              color: Color(0xFF02480F),
+                              color: const Color(0xFF02480F),
                             ),
                           ),
                           GestureDetector(
@@ -440,9 +480,9 @@ class Login extends StatelessWidget {
                               Navigator.pop(context);
                               _showAuthModal(context, isLogin: !isLogin);
                             },
-                            child: const Text(
-                              'Ganti',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.switchAuthButton,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
                                 decoration: TextDecoration.underline,
@@ -588,7 +628,7 @@ class _AuthButton extends StatelessWidget {
               ? Border.all(color: borderColor!, width: 3)
               : null,
           borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               offset: Offset(0, 4),
               blurRadius: 5,

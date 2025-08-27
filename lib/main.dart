@@ -1,10 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:resep/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:resep/ui/screens/home.dart';
 import 'package:resep/ui/screens/login.dart';
-import 'package:resep/translations.dart'; 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -15,19 +16,42 @@ void main() async {
     url: 'https://idxqbizpjfasphgqcdow.supabase.co',
   );
 
-  runApp(const MyApp());    
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<Locale> loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString('languageCode') ?? 'id';
+    return Locale(languageCode);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('id', 'ID'), // bahasa default
-      fallbackLocale: const Locale('en', 'US'), // jika bahasa tidak ditemukan
-      home: const Login(), 
+    return FutureBuilder<Locale>(
+      future: loadLocale(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('id'),
+            ],
+            locale: Get.locale ?? snapshot.data,
+            home: const Login(),
+          );
+        }
+        return const Center(child: CircularProgressIndicator(color: Colors.red,));
+      },
     );
   }
 }

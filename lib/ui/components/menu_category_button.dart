@@ -16,7 +16,7 @@ class MenuCategoryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = category.title == selectedCategory;
+    final isSelected = selectedCategory != null && category.title == selectedCategory;
 
     return ElevatedButton(
       onPressed: () => onCategorySelected(category.title),
@@ -35,17 +35,18 @@ class MenuCategoryButton extends StatelessWidget {
               height: 40,
               width: 40,
               fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
             ),
           ),
           const SizedBox(width: 12),
           Text(
-            category.title.label,
+            category.title.getLabel(context),
             style: const TextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
-            semanticsLabel: category.title.label,
+            semanticsLabel: category.title.getLabel(context),
           ),
         ],
       ),

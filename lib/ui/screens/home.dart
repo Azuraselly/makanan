@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resep/ui/components/food_card.dart';
 import 'package:resep/ui/components/menu_category_button.dart';
@@ -6,11 +7,13 @@ import 'package:resep/ui/models/menu_category.dart';
 import 'package:resep/ui/models/recipe_model.dart';
 import 'package:resep/ui/screens/bookmark_page.dart';
 import 'package:resep/ui/screens/bottom_sheet.dart';
-import 'package:resep/ui/screens/language_page.dart';
-import 'package:resep/ui/models/opsi_menu.dart';
 import 'package:resep/ui/screens/profile_page.dart';
 import 'package:resep/ui/screens/login.dart';
 import 'package:resep/services/service_makanan.dart';
+import 'package:resep/l10n/app_localizations.dart';
+import 'package:resep/ui/models/opsi_menu.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:resep/l10n/app_localizations_extension.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   List<RecipeModel> allRecipes = [];
   bool isLoading = true;
 
+  Future<void> saveLocale(String languageCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('languageCode', languageCode);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,17 +49,24 @@ class _HomeScreenState extends State<HomeScreen> {
         allRecipes = recipes;
       });
     } catch (e) {
-      print("Error load recipes: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.recipeLoadError(e.toString())),
+          ),
+        );
+      }
     } finally {
       setState(() => isLoading = false);
-    }               
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final List<RecipeModel> displayedRecipes = selectedCategory == RecipeCategory.all
         ? allRecipes
-        : allRecipes.where((recipe) => recipe.category == selectedCategory!.name).toList();
+        : allRecipes.where((recipe) => recipe.category == selectedCategory).toList();
 
     final List<RecipeModel> filteredRecipes = displayedRecipes.where((recipe) {
       return recipe.title.toLowerCase().contains(searchQuery.toLowerCase());
@@ -91,15 +106,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'L’Atelier du Chef\n',
+                            text: l10n.appName,
                             style: GoogleFonts.ubuntu(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF02480F),
                             ),
                           ),
+                          const TextSpan(text: '\n'),
                           TextSpan(
-                            text: 'BENGKEL SI KOKI',
+                            text: l10n.subtitle,
                             style: GoogleFonts.ubuntu(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -128,17 +144,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           icon: const Icon(Icons.menu, size: 30, color: Color(0xFF02480F)),
                           onSelected: (value) {
                             switch (value) {
-                               case 'profile':
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
-                                break;
-                              case 'Bahasa':
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => LanguagePage()));
+                              case 'profile':
+                                Get.to(() => const ProfilePage());
                                 break;
                               case 'bookmark':
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => BookmarkPage()));
+                                Get.to(() => const BookmarkPage());
                                 break;
                               case 'exit':
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
+                                Get.off(() => const Login());
                                 break;
                             }
                           },
@@ -148,11 +161,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                 value: opsi.value,
                                 child: ListTile(
                                   leading: Icon(opsi.icon),
-                                  title: Text(opsi.title),
+                                  title: Text(l10n.getMenuTitle(opsi.value)),
                                 ),
                               );
                             }).toList();
                           },
+                        ),
+                        PopupMenuButton<Locale>(
+                          icon: const Icon(Icons.language, size: 30, color: Color(0xFF02480F)),
+                          onSelected: (Locale locale) {
+                            Get.updateLocale(locale);
+                            saveLocale(locale.languageCode);
+                          },
+                          itemBuilder: (BuildContext context) => [
+                            PopupMenuItem<Locale>(
+                              value: const Locale('en'),
+                              child: Row(
+                                children: [
+                                  const Text('🇺🇸'),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.languageEnglish),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<Locale>(
+                              value: const Locale('id'),
+                              child: Row(
+                                children: [
+                                  const Text('🇮🇩'),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.languageIndonesian),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -161,7 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             // Search Bar
             Center(
               child: SizedBox(
@@ -172,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     onChanged: (value) => setState(() => searchQuery = value),
                     decoration: InputDecoration(
-                      hintText: 'Cari Resep...',
+                      hintText: l10n.searchHint,
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -192,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             // Category
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -202,17 +242,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   MenuCategoryButton(
                     category: MenuCategoryModel(
                       title: RecipeCategory.all,
-                      image: 'assets/sate.png',
+                      image: 'assets/sate.png', // Gambar untuk kategori 'All'
                     ),
                     selectedCategory: selectedCategory,
                     onCategorySelected: (category) => setState(() => selectedCategory = category),
                   ),
                   const SizedBox(width: 12),
                   ...MenuCategoryModel.category.map(
-                    ( category) => Padding(
+                    (menuCategory) => Padding(
                       padding: const EdgeInsets.only(right: 12.0),
                       child: MenuCategoryButton(
-                        category: category,
+                        category: menuCategory,
                         selectedCategory: selectedCategory,
                         onCategorySelected: (category) => setState(() => selectedCategory = category),
                       ),
@@ -221,7 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             // Title rekomendasi
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -229,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Recommended Recipe',
+                    l10n.recommendedRecipeTitle,
                     style: GoogleFonts.ubuntu(
                       fontSize: 24,
                       fontWeight: FontWeight.w500,
@@ -239,17 +278,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  TextButton(onPressed: () {}, child: const Text('See All')),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(l10n.seeAllButton),
+                  ),
                 ],
               ),
             ),
-
             // Grid resep
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredRecipes.isEmpty
-                      ? const Center(child: Text('Tidak ada resep ditemukan'))
+                      ? Center(child: Text(l10n.noRecipesFound))
                       : GridView.builder(
                           padding: const EdgeInsets.all(8.0),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -1,4 +1,4 @@
-import 'package:resep/ui/models/recipe_model.dart';
+import 'recipe_model.dart';
 
 class MenuCategoryModel {
   final RecipeCategory title;
@@ -9,10 +9,20 @@ class MenuCategoryModel {
     required this.image,
   });
 
-  static List<MenuCategoryModel> category = [
-    MenuCategoryModel(title: RecipeCategory.appetizer, image: 'assets/sate.png'),
-    MenuCategoryModel(title: RecipeCategory.mainCourse, image: 'assets/sate.png'),
-    MenuCategoryModel(title: RecipeCategory.dessert, image: 'assets/sate.png'),
-    MenuCategoryModel(title: RecipeCategory.cake, image: 'assets/sate.png'),
+  // Daftar statis sebagai referensi untuk gambar kategori
+  static final List<MenuCategoryModel> category = [
+    MenuCategoryModel(title: RecipeCategory.appetizer, image: 'assets/salad.png'),
+    MenuCategoryModel(title: RecipeCategory.mainCourse, image: 'assets/ayam_bakar.png'),
+    MenuCategoryModel(title: RecipeCategory.dessert, image: 'assets/pancake.png'),
+   
   ];
+
+  // Metode untuk mendapatkan gambar berdasarkan kategori
+  static String getImageForCategory(RecipeCategory recipeCategory) {
+    final match = category.firstWhere(
+      (item) => item.title == recipeCategory,
+      orElse: () => MenuCategoryModel(title: recipeCategory, image: 'assets/default.png'),
+    );
+    return match.image;
+  }
 }

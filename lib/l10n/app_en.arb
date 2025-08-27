@@ -1,0 +1,90 @@
+{
+  "@@locale": "en",
+  "appName": "L’Atelier du Chef",
+  "subtitle": "CHEF'S WORKSHOP",
+  "description": "Ready to enrich your home cooking collection? Explore all the recipes we offer and find new ideas for every dish!",
+  "createAccountButton": "Create Account",
+  "loginButton": "Login",
+  "emailLabel": "Email",
+  "emailHint": "example@domain.com",
+  "emailEmptyError": "Email cannot be empty",
+  "emailInvalidError": "Invalid email format",
+  "nameLabel": "Name",
+  "nameHint": "Full name",
+  "nameEmptyError": "Name cannot be empty",
+  "bioLabel": "Bio",
+  "bioHint": "A short description about yourself",
+  "bioEmptyError": "Bio cannot be empty",
+  "passwordLabel": "Password",
+  "passwordHint": "Enter your password",
+  "passwordEmptyError": "Password cannot be empty",
+  "passwordMinLengthError": "Password must be at least 6 characters",
+  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordHint": "Enter your password again",
+  "confirmPasswordEmptyError": "Confirm password cannot be empty",
+  "confirmPasswordMismatchError": "Passwords do not match",
+  "loginFailedTitle": "Login Failed",
+  "loginFailedContent": "Account does not exist or password is incorrect.",
+  "registerFailedTitle": "Registration Failed",
+  "registerFailedContent": "Account already exists. Use another email or log in.",
+  "genericErrorTitle": "An Error Occurred",
+  "genericErrorContent": "An error occurred. Please try again.",
+  "switchAuthTextLogin": "Don't have an account? ",
+  "switchAuthTextRegister": "Already have an account? ",
+  "switchAuthButton": "Switch",
+  "ok": "OK",
+  "languageEnglish": "English",
+  "languageIndonesian": "Indonesian",
+  "profileTitle": "Profile",
+  "editProfileButton": "Edit Profile",
+  "postsLabel": "Posts",
+  "emptyRecipeMessage": "You haven't created any recipes yet 🍳",
+  "recipeSectionTitle": "My Recipes",
+  "saveButton": "Save",
+  "profileNameLabel": "Name",
+  "profileNameEmptyError": "Name is required",
+  "profileBioLabel": "Bio",
+  "defaultUserName": "User",
+  "defaultBio": "Add a bio to make it more interesting!",
+  "profileLoadError": "Failed to load profile: {error}",
+  "@profileLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "profileUpdateSuccess": "Profile updated successfully",
+  "profileUpdateError": "Failed to update profile: {error}",
+  "@profileUpdateError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "userNotLoggedInError": "User not logged in",
+  "searchHint": "Search Recipes...",
+  "recommendedRecipeTitle": "Recommended Recipe",
+  "seeAllButton": "See All",
+  "noRecipesFound": "No recipes found",
+  "category_all": "All",
+  "category_appetizer": "Appetizer",
+  "category_mainCourse": "Main Course",
+  "category_dessert": "Dessert",
+  "category_cake": "Cake",
+  "recipeLoadError": "Failed to load recipes: {error}",
+  "@recipeLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "menuProfile": "Profile",
+  "menuLanguage": "Language",
+  "menuBookmark": "Bookmark",
+  "menuExit": "Exit",
+  "ingredientsTab": "Ingredients",
+  "stepsTab": "Steps",
+  "ingredientsTitle": "Ingredients",
+  "stepsTitle": "Cooking Steps",
+  "recipeImageLabel": "Image of {title}",
+  "@recipeImageLabel": {
+    "placeholders": {"title": {}}
+  }
+}

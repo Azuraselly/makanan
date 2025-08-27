@@ -1,36 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:resep/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+class LanguagePage extends StatefulWidget {
+  const LanguagePage({Key? key}) : super(key: key);
 
-class LanguagePage extends StatelessWidget {
-  final languages = [
-    {'name': 'English', 'code': 'en'},
-    {'name': 'Bahasa Indonesia', 'code': 'id'},
-  ];
+  @override
+  _LanguagePageState createState() => _LanguagePageState();
+}
+
+class _LanguagePageState extends State<LanguagePage> {
+  String? _selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLanguage = Get.locale?.languageCode ?? 'id';
+  }
+
+  Future<void> saveLocale(String languageCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('languageCode', languageCode);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Language Settings'.tr),
-        backgroundColor: Colors.deepOrangeAccent,
-        centerTitle: true,
+        title: Text(l10n.languageEnglish), // Menggunakan terjemahan
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
       ),
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            Icon(Icons.language, size: 80, color: Colors.deepOrangeAccent),
-            SizedBox(height: 20),
-            Text(
-              'Select your preferred language'.tr,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 30),
-          ],
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          RadioListTile<String>(
+            value: "id",
+            groupValue: _selectedLanguage,
+            title: Text(l10n.languageIndonesian), // Menggunakan terjemahan
+            onChanged: (value) {
+              setState(() {
+                _selectedLanguage = value;
+              });
+              Get.updateLocale(const Locale('id'));
+              saveLocale(value!);
+            },
+          ),
+          RadioListTile<String>(
+            value: "en",
+            groupValue: _selectedLanguage,
+            title: Text(l10n.languageEnglish), // Belum diterjemahkan, bisa diganti
+            onChanged: (value) {
+              setState(() {
+                _selectedLanguage = value;
+              });
+              Get.updateLocale(const Locale('en'));
+              saveLocale(value!);
+            },
+          ),
+        ],
       ),
     );
   }

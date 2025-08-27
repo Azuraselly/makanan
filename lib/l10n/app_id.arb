@@ -1,0 +1,90 @@
+{
+  "@@locale": "id",
+  "appName": "L’Atelier du Chef",
+  "subtitle": "BENGKEL KOKI",
+  "description": "Siap memperkaya koleksi masakan rumah Anda? Jelajahi semua resep yang kami tawarkan dan temukan ide baru untuk setiap hidangan!",
+  "createAccountButton": "Buat Akun",
+  "loginButton": "Masuk",
+  "emailLabel": "Email",
+  "emailHint": "contoh@domain.com",
+  "emailEmptyError": "Email tidak boleh kosong",
+  "emailInvalidError": "Format email tidak valid",
+  "nameLabel": "Nama",
+  "nameHint": "Nama lengkap",
+  "nameEmptyError": "Nama tidak boleh kosong",
+  "bioLabel": "Bio",
+  "bioHint": "Deskripsi singkat tentang diri Anda",
+  "bioEmptyError": "Bio tidak boleh kosong",
+  "passwordLabel": "Kata Sandi",
+  "passwordHint": "Masukkan kata sandi Anda",
+  "passwordEmptyError": "Kata sandi tidak boleh kosong",
+  "passwordMinLengthError": "Kata sandi harus minimal 6 karakter",
+  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+  "confirmPasswordHint": "Masukkan kata sandi lagi",
+  "confirmPasswordEmptyError": "Konfirmasi kata sandi tidak boleh kosong",
+  "confirmPasswordMismatchError": "Kata sandi tidak cocok",
+  "loginFailedTitle": "Gagal Masuk",
+  "loginFailedContent": "Akun tidak ada atau kata sandi salah.",
+  "registerFailedTitle": "Pendaftaran Gagal",
+  "registerFailedContent": "Akun sudah ada. Gunakan email lain atau masuk.",
+  "genericErrorTitle": "Terjadi Kesalahan",
+  "genericErrorContent": "Terjadi kesalahan. Silakan coba lagi.",
+  "switchAuthTextLogin": "Belum punya akun? ",
+  "switchAuthTextRegister": "Sudah punya akun? ",
+  "switchAuthButton": "Ganti",
+  "ok": "OK",
+  "languageEnglish": "Inggris",
+  "languageIndonesian": "Indonesia",
+  "profileTitle": "Profil",
+  "editProfileButton": "Edit Profil",
+  "postsLabel": "Postingan",
+  "emptyRecipeMessage": "Anda belum membuat resep apa pun 🍳",
+  "recipeSectionTitle": "Resep Saya",
+  "saveButton": "Simpan",
+  "profileNameLabel": "Nama",
+  "profileNameEmptyError": "Nama wajib diisi",
+  "profileBioLabel": "Bio",
+  "defaultUserName": "Pengguna",
+  "defaultBio": "Tambahkan bio agar lebih menarik!",
+  "profileLoadError": "Gagal memuat profil: {error}",
+  "@profileLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "profileUpdateSuccess": "Profil berhasil diperbarui",
+  "profileUpdateError": "Gagal memperbarui profil: {error}",
+  "@profileUpdateError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "userNotLoggedInError": "Pengguna belum login",
+  "searchHint": "Cari Resep...",
+  "recommendedRecipeTitle": "Resep Rekomendasi",
+  "seeAllButton": "Lihat Semua",
+  "noRecipesFound": "Tidak ada resep ditemukan",
+  "category_all": "Semua",
+  "category_appetizer": "Hidangan Pembuka",
+  "category_mainCourse": "Hidangan Utama",
+  "category_dessert": "Hidangan Penutup",
+  "category_cake": "Kue",
+  "recipeLoadError": "Gagal memuat resep: {error}",
+  "@recipeLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "menuProfile": "Profil",
+  "menuLanguage": "Bahasa",
+  "menuBookmark": "Bookmark",
+  "menuExit": "Keluar",
+  "ingredientsTab": "Bahan",
+  "stepsTab": "Langkah",
+  "ingredientsTitle": "Bahan-bahan",
+  "stepsTitle": "Langkah Memasak",
+  "recipeImageLabel": "Gambar dari {title}",
+"@recipeImageLabel": {
+  "placeholders": {"title": {}}
+}
+}

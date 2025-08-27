@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:resep/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/service_profile.dart';
 import '../models/recipe_model.dart';
@@ -52,23 +53,26 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profileLoadError(e.toString())),
+          ),
+        );
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat profil: $e")),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final name = profile?['name'] ?? "User";
-    final bio = profile?['bio'] ?? "Tambahkan bio agar lebih menarik!";
+    final name = profile?['name'] ?? l10n.defaultUserName;
+    final bio = profile?['bio'] ?? l10n.defaultBio;
     final avatarUrl = profile?['avatar_url'];
 
     return Scaffold(
@@ -80,9 +84,13 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text("Profil",
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600, color: Colors.black)),
+        title: Text(
+          l10n.profileTitle,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -91,7 +99,6 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-
               /// Avatar + Nama + Bio
               Column(
                 children: [
@@ -102,31 +109,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         : const AssetImage("assets/sate.png") as ImageProvider,
                   ),
                   const SizedBox(height: 10),
-                  Text(name,
-                      style: GoogleFonts.poppins(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     bio,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                        fontSize: 14, color: Colors.grey[700]),
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
                   ),
                   const SizedBox(height: 16),
-
                   /// hanya Postingan (tanpa followers/following)
-                  _statCard("$recipeCount", "Postingan", Icons.restaurant),
-
+                  _statCard("$recipeCount", l10n.postsLabel, Icons.restaurant),
                   const SizedBox(height: 16),
-
-                  /// Tombol Edit Profil (muncul popup kecil estetik)
+                  /// Tombol Edit Profil
                   ElevatedButton(
                     onPressed: () async {
                       final updated = await showDialog(
                         context: context,
                         builder: (_) => Dialog(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           child: EditProfileModal(
                             name: name,
                             bio: bio,
@@ -139,46 +150,56 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF02480F),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                       padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 40),
+                        vertical: 12,
+                        horizontal: 40,
+                      ),
                     ),
-                    child: Text("Edit Profil",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600)),
+                    child: Text(
+                      l10n.editProfileButton,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
-
               /// Grid Resep Saya
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("Resep Saya",
-                        style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
+                    Text(
+                      l10n.recipeSectionTitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-
               userRecipes.isEmpty
                   ? Padding(
                       padding: const EdgeInsets.all(40),
                       child: Column(
                         children: [
-                          const Icon(Icons.no_food,
-                              size: 70, color: Colors.grey),
+                          const Icon(Icons.no_food, size: 70, color: Colors.grey),
                           const SizedBox(height: 12),
-                          Text("Belum ada resep yang kamu buat 🍳",
-                              style: GoogleFonts.poppins(
-                                  color: Colors.grey[700], fontSize: 15)),
+                          Text(
+                            l10n.emptyRecipeMessage,
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[700],
+                              fontSize: 15,
+                            ),
+                          ),
                         ],
                       ),
                     )
@@ -188,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // instagram style
+                        crossAxisCount: 3,
                         crossAxisSpacing: 4,
                         mainAxisSpacing: 4,
                         childAspectRatio: 1,
@@ -209,26 +230,30 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _statCard(String count, String label, IconData icon) {
     return Column(
       children: [
-        Text(count,
-            style:
-                GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label,
-            style: GoogleFonts.poppins(
-                fontSize: 14, color: Colors.grey[600])),
+        Text(
+          count,
+          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+        ),
       ],
     );
   }
 }
 
-/// ==== Edit Profile Modal ====
 class EditProfileModal extends StatefulWidget {
   final String name;
   final String bio;
   final String? avatarUrl;
 
-  const EditProfileModal(
-      {Key? key, required this.name, required this.bio, this.avatarUrl})
-      : super(key: key);
+  const EditProfileModal({
+    Key? key,
+    required this.name,
+    required this.bio,
+    this.avatarUrl,
+  }) : super(key: key);
 
   @override
   State<EditProfileModal> createState() => _EditProfileModalState();
@@ -263,6 +288,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
   }
 
   Future<void> _saveProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (!mounted) return;
 
@@ -270,7 +296,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) throw Exception('User belum login');
+      if (user == null) throw Exception(l10n.userNotLoggedInError);
 
       if (newAvatar != null) {
         avatarUrl = await profileService.uploadAvatar(newAvatar!);
@@ -284,13 +310,13 @@ class _EditProfileModalState extends State<EditProfileModal> {
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profil berhasil diperbarui')),
+          SnackBar(content: Text(l10n.profileUpdateSuccess)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(l10n.profileUpdateError(e.toString()))),
         );
       }
     } finally {
@@ -300,6 +326,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -318,8 +345,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                           : FileImage(File(newAvatar!.path)) as ImageProvider
                       : avatarUrl != null
                           ? NetworkImage(avatarUrl!)
-                          : const AssetImage("assets/sate.png")
-                              as ImageProvider,
+                          : const AssetImage("assets/sate.png") as ImageProvider,
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: CircleAvatar(
@@ -333,20 +359,19 @@ class _EditProfileModalState extends State<EditProfileModal> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.profileNameLabel,
+                  border: const OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Nama wajib diisi' : null,
+                validator: (v) => v == null || v.isEmpty ? l10n.profileNameEmptyError : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _bioController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Bio',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.profileBioLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
@@ -358,13 +383,19 @@ class _EditProfileModalState extends State<EditProfileModal> {
                     backgroundColor: const Color(0xFF02480F),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: loading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Simpan",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600)),
+                      : Text(
+                          l10n.saveButton,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white
+                          ),
+                        ),
                 ),
               ),
             ],

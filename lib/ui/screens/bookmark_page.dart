@@ -190,7 +190,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  recipeModel.category.label,
+                                  recipeModel.category.getLabel(context),
                                   style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
