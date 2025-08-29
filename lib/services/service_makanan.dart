@@ -29,7 +29,7 @@ class ServiceMakanan {
     String? gambarUrl;
     if (gambarFile != null) {
       final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final path = '$userId/$fileName'; // Perbaikan: hapus 'makanan/' dari path
+      final path = '$userId/$fileName';
       print('Mengunggah gambar ke: $path');
       try {
         if (kIsWeb) {
@@ -108,7 +108,7 @@ class ServiceMakanan {
 
   /// Update makanan berdasarkan ID
   Future<void> updateMakanan({
-    required int id,
+    required String id, // Ubah ke String
     String? kategori,
     String? nama,
     String? bahan,
@@ -121,7 +121,7 @@ class ServiceMakanan {
     String? gambarUrl;
     if (gambarFile != null) {
       final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final path = '$userId/$fileName'; // Perbaikan: hapus 'makanan/' dari path
+      final path = '$userId/$fileName';
       try {
         if (kIsWeb) {
           final bytes = await gambarFile.readAsBytes();
@@ -145,14 +145,45 @@ class ServiceMakanan {
 
     if (updates.isEmpty) throw Exception('Tidak ada data untuk diperbarui');
 
-    await supabase.from('makanan').update(updates).eq('id', id).eq('user_id', userId);
+    try {
+      await supabase.from('makanan').update(updates).eq('id', id).eq('user_id', userId);
+    } on PostgrestException catch (e) {
+      throw Exception('Gagal memperbarui resep: ${e.message}');
+    } catch (e) {
+      throw Exception('Gagal memperbarui resep: $e');
+    }
   }
 
   /// Hapus makanan berdasarkan ID
-  Future<void> deleteMakanan(int id) async {
+  Future<void> deleteMakanan(String id) async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) throw Exception('User belum login');
 
-    await supabase.from('makanan').delete().eq('id', id).eq('user_id', userId);
+    try {
+      // Ambil data resep untuk mendapatkan URL gambar (jika ada)
+      final response = await supabase
+          .from('makanan')
+          .select('gambar_url')
+          .eq('id', id)
+          .eq('user_id', userId)
+          .maybeSingle(); // Gunakan maybeSingle untuk menangani kasus tidak ditemukan
+
+      if (response == null) {
+        throw Exception('Resep tidak ditemukan atau Anda tidak memiliki akses');
+      }
+
+      // Hapus gambar dari storage jika ada
+      if (response['gambar_url'] != null) {
+        final imagePath = response['gambar_url'].split('/').last;
+        await supabase.storage.from('makanan').remove(['$userId/$imagePath']);
+      }
+
+      // Hapus resep dari tabel
+      await supabase.from('makanan').delete().eq('id', id).eq('user_id', userId);
+    } on PostgrestException catch (e) {
+      throw Exception('Gagal menghapus resep: ${e.message}');
+    } catch (e) {
+      throw Exception('Gagal menghapus resep: $e');
+    }
   }
 }

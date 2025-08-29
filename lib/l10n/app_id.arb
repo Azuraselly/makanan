@@ -46,6 +46,10 @@
   "profileBioLabel": "Bio",
   "defaultUserName": "Pengguna",
   "defaultBio": "Tambahkan bio agar lebih menarik!",
+  "logoutConfirmationTitle": "Konfirmasi Keluar",
+  "logoutConfirmationContent": "Apakah Anda yakin ingin keluar?",
+  "logoutConfirmButton": "Keluar",
+  "cancelButton": "Batal",
   "profileLoadError": "Gagal memuat profil: {error}",
   "@profileLoadError": {
     "placeholders": {
@@ -69,6 +73,14 @@
   "category_mainCourse": "Hidangan Utama",
   "category_dessert": "Hidangan Penutup",
   "category_cake": "Kue",
+ "emptyRecipeMessage": "Belum ada resep yang kamu tambahkan",
+  "deleteButton": "Hapus",
+  "deleteDialogTitle": "Hapus Resep?",
+  "deleteDialogMessage": "Apakah kamu yakin ingin menghapus resep ini? Aksi ini tidak bisa dibatalkan.",
+  "cancelButton": "Batal",
+  "confirmDeleteButton": "Hapus",
+  "deleteSuccessMessage": "Resep berhasil dihapus",
+  "deleteErrorMessage": "Gagal menghapus resep",
   "recipeLoadError": "Gagal memuat resep: {error}",
   "@recipeLoadError": {
     "placeholders": {

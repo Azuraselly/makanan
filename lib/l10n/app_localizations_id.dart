@@ -126,7 +126,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get postsLabel => 'Postingan';
 
   @override
-  String get emptyRecipeMessage => 'Anda belum membuat resep apa pun 🍳';
+  String get emptyRecipeMessage => 'Belum ada resep yang kamu tambahkan';
 
   @override
   String get recipeSectionTitle => 'Resep Saya';
@@ -148,6 +148,18 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get defaultBio => 'Tambahkan bio agar lebih menarik!';
+
+  @override
+  String get logoutConfirmationTitle => 'Konfirmasi Keluar';
+
+  @override
+  String get logoutConfirmationContent => 'Apakah Anda yakin ingin keluar?';
+
+  @override
+  String get logoutConfirmButton => 'Keluar';
+
+  @override
+  String get cancelButton => 'Batal';
 
   @override
   String profileLoadError(Object error) {
@@ -191,6 +203,25 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get category_cake => 'Kue';
+
+  @override
+  String get deleteButton => 'Hapus';
+
+  @override
+  String get deleteDialogTitle => 'Hapus Resep?';
+
+  @override
+  String get deleteDialogMessage =>
+      'Apakah kamu yakin ingin menghapus resep ini? Aksi ini tidak bisa dibatalkan.';
+
+  @override
+  String get confirmDeleteButton => 'Hapus';
+
+  @override
+  String get deleteSuccessMessage => 'Resep berhasil dihapus';
+
+  @override
+  String get deleteErrorMessage => 'Gagal menghapus resep';
 
   @override
   String recipeLoadError(Object error) {

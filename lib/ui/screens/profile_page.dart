@@ -55,9 +55,125 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() => loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.profileLoadError(e.toString())),
+            content: Text(
+              AppLocalizations.of(context)!.profileLoadError(e.toString()),
+            ),
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _deleteRecipe(String recipeId, int index) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: AnimatedScale(
+            scale: 1,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutBack,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    child: const Icon(
+                      Icons.delete_forever,
+                      color: Colors.red,
+                      size: 40,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Hapus Resep?",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Apakah kamu yakin ingin menghapus resep ini? Aksi ini tidak bisa dibatalkan.",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(
+                          "Batal",
+                          style: GoogleFonts.poppins(color: Colors.black87),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                        ),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text("Hapus", style: GoogleFonts.poppins()),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirm == true) {
+      try {
+        await profileService.deleteRecipe(recipeId);
+        if (mounted) {
+          setState(() {
+            userRecipes.removeAt(index);
+            recipeCount -= 1;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Resep berhasil dihapus")),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Gagal menghapus resep: $e")));
+        }
       }
     }
   }
@@ -66,9 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final name = profile?['name'] ?? l10n.defaultUserName;
@@ -99,6 +213,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               const SizedBox(height: 20),
+
               /// Avatar + Nama + Bio
               Column(
                 children: [
@@ -126,10 +241,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  /// hanya Postingan (tanpa followers/following)
                   _statCard("$recipeCount", l10n.postsLabel, Icons.restaurant),
                   const SizedBox(height: 16),
-                  /// Tombol Edit Profil
                   ElevatedButton(
                     onPressed: () async {
                       final updated = await showDialog(
@@ -168,8 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              /// Grid Resep Saya
+              const SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -191,7 +303,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.all(40),
                       child: Column(
                         children: [
-                          const Icon(Icons.no_food, size: 70, color: Colors.grey),
+                          const Icon(
+                            Icons.no_food,
+                            size: 70,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             l10n.emptyRecipeMessage,
@@ -209,14 +325,58 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 4,
-                        mainAxisSpacing: 4,
-                        childAspectRatio: 1,
-                      ),
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 4,
+                            mainAxisSpacing: 4,
+                            childAspectRatio: 1,
+                          ),
                       itemCount: userRecipes.length,
                       itemBuilder: (context, index) {
-                        return FoodCard(recipe: userRecipes[index]);
+                        final recipe = userRecipes[index];
+                        return Stack(
+                          children: [
+                            FoodCard(recipe: recipe),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: PopupMenuButton<String>(
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.grey,
+                                  size: 22,
+                                ),
+                                onSelected: (value) {
+                                  if (value == 'delete') {
+                                    _deleteRecipe(recipe.id, index);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 22,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          l10n.deleteButton ??
+                                              'Delete', // Use localized string if available
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
                       },
                     ),
               const SizedBox(height: 40),
@@ -302,16 +462,19 @@ class _EditProfileModalState extends State<EditProfileModal> {
         avatarUrl = await profileService.uploadAvatar(newAvatar!);
       }
 
-      await Supabase.instance.client.from('profiles').update({
-        'name': _nameController.text.trim(),
-        'bio': _bioController.text.trim(),
-      }).eq('id', user.id);
+      await Supabase.instance.client
+          .from('profiles')
+          .update({
+            'name': _nameController.text.trim(),
+            'bio': _bioController.text.trim(),
+          })
+          .eq('id', user.id);
 
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.profileUpdateSuccess)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.profileUpdateSuccess)));
       }
     } catch (e) {
       if (mounted) {
@@ -341,11 +504,11 @@ class _EditProfileModalState extends State<EditProfileModal> {
                   radius: 45,
                   backgroundImage: newAvatar != null
                       ? kIsWeb
-                          ? NetworkImage(newAvatar!.path)
-                          : FileImage(File(newAvatar!.path)) as ImageProvider
+                            ? NetworkImage(newAvatar!.path)
+                            : FileImage(File(newAvatar!.path)) as ImageProvider
                       : avatarUrl != null
-                          ? NetworkImage(avatarUrl!)
-                          : const AssetImage("assets/sate.png") as ImageProvider,
+                      ? NetworkImage(avatarUrl!)
+                      : const AssetImage("assets/sate.png") as ImageProvider,
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: CircleAvatar(
@@ -363,7 +526,8 @@ class _EditProfileModalState extends State<EditProfileModal> {
                   labelText: l10n.profileNameLabel,
                   border: const OutlineInputBorder(),
                 ),
-                validator: (v) => v == null || v.isEmpty ? l10n.profileNameEmptyError : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? l10n.profileNameEmptyError : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -393,7 +557,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white
+                            color: Colors.white,
                           ),
                         ),
                 ),

@@ -6,9 +6,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/service_bookmark.dart';
 
 class FoodCard extends StatefulWidget {
-  const FoodCard({Key? key, required this.recipe});
-
   final RecipeModel recipe;
+
+  const FoodCard({
+    Key? key,
+    required this.recipe,
+  }) : super(key: key);
 
   @override
   State<FoodCard> createState() => _FoodCardState();
@@ -17,7 +20,6 @@ class FoodCard extends StatefulWidget {
 class _FoodCardState extends State<FoodCard> {
   bool _isBookmarked = false;
 
-  // tambahkan instance ServiceBookmark
   final ServiceBookmark _bookmarkService = ServiceBookmark();
 
   @override
@@ -38,7 +40,10 @@ class _FoodCardState extends State<FoodCard> {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Silakan login untuk menyimpan resep!'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('Silakan login untuk menyimpan resep!'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -51,12 +56,18 @@ class _FoodCardState extends State<FoodCard> {
       if (_isBookmarked) {
         await _bookmarkService.addBookmark(userId, widget.recipe.id);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Resep disimpan ke bookmark!'), backgroundColor: Color(0xFF48742C)),
+          const SnackBar(
+            content: Text('Resep disimpan ke bookmark!'),
+            backgroundColor: Color(0xFF48742C),
+          ),
         );
       } else {
         await _bookmarkService.removeBookmark(userId, widget.recipe.id);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Resep dihapus dari bookmark!'), backgroundColor: Color(0xFF48742C)),
+          const SnackBar(
+            content: Text('Resep dihapus dari bookmark!'),
+            backgroundColor: Color(0xFF48742C),
+          ),
         );
       }
     } catch (e) {
@@ -82,11 +93,10 @@ class _FoodCardState extends State<FoodCard> {
             MaterialPageRoute(
               builder: (context) => DetailRecipePage(
                 recipe: widget.recipe,
-                isBookmarked: _isBookmarked, // kirim status bookmark
+                isBookmarked: _isBookmarked,
               ),
             ),
           ).then((value) {
-            // kalau kembali dari detail, update status bookmark di card
             if (value != null && value is bool) {
               setState(() {
                 _isBookmarked = value;
@@ -101,7 +111,7 @@ class _FoodCardState extends State<FoodCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black12,
                 offset: Offset(0, 4),
@@ -114,7 +124,7 @@ class _FoodCardState extends State<FoodCard> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                   child: Image.network(
                     widget.recipe.image,
                     fit: BoxFit.cover,
@@ -136,7 +146,7 @@ class _FoodCardState extends State<FoodCard> {
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        overflow: TextOverflow.ellipsis, // biar gak overflow
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -145,7 +155,7 @@ class _FoodCardState extends State<FoodCard> {
                       icon: Icon(
                         _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                         size: 30,
-                        color: Colors.brown, // biar lebih kelihatan
+                        color: Colors.brown,
                       ),
                     ),
                   ],

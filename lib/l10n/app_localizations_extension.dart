@@ -5,8 +5,6 @@ extension AppLocalizationsExtension on AppLocalizations {
     switch (value) {
       case 'profile':
         return menuProfile;
-      case 'language':
-        return menuLanguage;
       case 'bookmark':
         return menuBookmark;
       case 'exit':

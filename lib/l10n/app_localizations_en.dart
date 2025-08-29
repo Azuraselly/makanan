@@ -126,7 +126,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postsLabel => 'Posts';
 
   @override
-  String get emptyRecipeMessage => 'You haven\'t created any recipes yet 🍳';
+  String get emptyRecipeMessage => 'No recipes added yet';
 
   @override
   String get recipeSectionTitle => 'My Recipes';
@@ -148,6 +148,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultBio => 'Add a bio to make it more interesting!';
+
+  @override
+  String get logoutConfirmationTitle => 'Confirm Logout';
+
+  @override
+  String get logoutConfirmationContent => 'Are you sure you want to log out?';
+
+  @override
+  String get logoutConfirmButton => 'Log Out';
+
+  @override
+  String get cancelButton => 'Cancel';
 
   @override
   String profileLoadError(Object error) {
@@ -191,6 +203,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get category_cake => 'Cake';
+
+  @override
+  String get deleteButton => 'Delete';
+
+  @override
+  String get deleteDialogTitle => 'Delete Recipe?';
+
+  @override
+  String get deleteDialogMessage =>
+      'Are you sure you want to delete this recipe? This action cannot be undone.';
+
+  @override
+  String get confirmDeleteButton => 'Delete';
+
+  @override
+  String get deleteSuccessMessage => 'Recipe deleted successfully';
+
+  @override
+  String get deleteErrorMessage => 'Failed to delete recipe';
 
   @override
   String recipeLoadError(Object error) {

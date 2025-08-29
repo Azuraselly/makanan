@@ -19,7 +19,7 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
   final TextEditingController bahanController = TextEditingController();
   final TextEditingController langkahController = TextEditingController();
 
-  final List<String> kategoriList = ['Appetizer', 'Main Course', 'Dessert', 'Cake'];
+  final List<String> kategoriList = ['Appetizer', 'Main Course', 'Dessert'];
   String? selectedKategori;
   XFile? selectedImage;
 

@@ -329,7 +329,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyRecipeMessage.
   ///
   /// In en, this message translates to:
-  /// **'You haven\'t created any recipes yet 🍳'**
+  /// **'No recipes added yet'**
   String get emptyRecipeMessage;
 
   /// No description provided for @recipeSectionTitle.
@@ -373,6 +373,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a bio to make it more interesting!'**
   String get defaultBio;
+
+  /// No description provided for @logoutConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Logout'**
+  String get logoutConfirmationTitle;
+
+  /// No description provided for @logoutConfirmationContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get logoutConfirmationContent;
+
+  /// No description provided for @logoutConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logoutConfirmButton;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButton;
 
   /// No description provided for @profileLoadError.
   ///
@@ -451,6 +475,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cake'**
   String get category_cake;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteButton;
+
+  /// No description provided for @deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Recipe?'**
+  String get deleteDialogTitle;
+
+  /// No description provided for @deleteDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this recipe? This action cannot be undone.'**
+  String get deleteDialogMessage;
+
+  /// No description provided for @confirmDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get confirmDeleteButton;
+
+  /// No description provided for @deleteSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe deleted successfully'**
+  String get deleteSuccessMessage;
+
+  /// No description provided for @deleteErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete recipe'**
+  String get deleteErrorMessage;
 
   /// No description provided for @recipeLoadError.
   ///
