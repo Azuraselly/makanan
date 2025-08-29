@@ -1,4 +1,3 @@
-// File: lib/ui/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,7 +10,7 @@ import 'package:resep/ui/screens/bottom_sheet.dart';
 import 'package:resep/ui/screens/profile_page.dart';
 import 'package:resep/ui/screens/login.dart';
 import 'package:resep/services/service_makanan.dart';
-import 'package:resep/services/auth_services.dart'; // Tambahkan import untuk SupabaseService
+import 'package:resep/services/auth_services.dart';
 import 'package:resep/l10n/app_localizations.dart';
 import 'package:resep/ui/models/opsi_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   RecipeCategory? selectedCategory = RecipeCategory.all;
   String searchQuery = '';
   final ServiceMakanan _serviceMakanan = ServiceMakanan();
@@ -40,18 +39,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadRecipes();
   }
 
-  Future<void> _loadRecipes() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadRecipes(forceRefresh: true);
+    }
+  }
+
+  Future<void> _loadRecipes({bool forceRefresh = false}) async {
+    if (!mounted) return;
+
     setState(() => isLoading = true);
     try {
       final recipes = await _serviceMakanan.fetchRecipes();
-      setState(() {
-        allRecipes = recipes;
-      });
+      if (mounted) {
+        setState(() {
+          allRecipes = recipes;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       if (mounted) {
+        setState(() => isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -60,12 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       }
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
-  // Fungsi untuk menampilkan dialog konfirmasi logout
   Future<bool?> _showLogoutConfirmationDialog(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     return showDialog<bool>(
@@ -148,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 35),
-              // Header + tombol tambah
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
@@ -202,8 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 builder: (context) => TambahResepBottomSheet(),
                               ).then(
-                                (_) => _loadRecipes(),
-                              ); // refresh setelah tambah resep
+                                (_) => _loadRecipes(forceRefresh: true),
+                              );
                             },
                             icon: const Icon(
                               Icons.add,
@@ -220,22 +235,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             onSelected: (value) async {
                               switch (value) {
                                 case 'profile':
-                                  Get.to(() => const ProfilePage())?.then((
-                                    result,
-                                  ) {
-                                    if (result == true) {
-                                      _loadRecipes(); // Refresh setelah kembali dari ProfilePage
-                                    }
-                                  });
+                                  final result = await Get.to(() => const ProfilePage());
+                                  if (result == true) {
+                                    await _loadRecipes(forceRefresh: true); // Refresh jika ada perubahan
+                                  }
                                   break;
                                 case 'bookmark':
-                                  Get.to(() => const BookmarkPage());
+                                  final result = await Get.to(() => const BookmarkPage());
+                                  if (result == true) {
+                                    await _loadRecipes(forceRefresh: true);
+                                  }
                                   break;
                                 case 'exit':
                                   final confirm = await _showLogoutConfirmationDialog(context);
                                   if (confirm == true) {
                                     try {
-                                      await SupabaseService().logout(); 
+                                      await SupabaseService().logout();
                                       Get.off(() => const Login());
                                     } catch (e) {
                                       Get.snackbar(
@@ -271,6 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onSelected: (Locale locale) {
                               Get.updateLocale(locale);
                               saveLocale(locale.languageCode);
+                              _loadRecipes(forceRefresh: true);
                             },
                             itemBuilder: (BuildContext context) => [
                               PopupMenuItem<Locale>(
@@ -302,7 +318,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Search Bar
               Center(
                 child: SizedBox(
                   width: 377,
@@ -339,7 +354,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Category
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -348,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MenuCategoryButton(
                       category: MenuCategoryModel(
                         title: RecipeCategory.all,
-                        image: 'assets/sate.png', // Gambar untuk kategori 'All'
+                        image: 'assets/sate.png',
                       ),
                       selectedCategory: selectedCategory,
                       onCategorySelected: (category) =>
@@ -369,7 +383,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              // Title rekomendasi
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -393,7 +406,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              // Grid resep
               Expanded(
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())

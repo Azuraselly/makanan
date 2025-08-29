@@ -1,5 +1,3 @@
-// File: lib/ui/pages/profile_page.dart (atau path yang sesuai)
-
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:resep/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get/get.dart';
 import '../../services/service_profile.dart';
 import '../models/recipe_model.dart';
 import 'package:resep/ui/components/food_card.dart';
@@ -160,25 +159,28 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (confirm == true) {
       try {
+        setState(() => loading = true);
         await profileService.deleteRecipe(recipeId);
         if (mounted) {
-          setState(() {
-            userRecipes.removeAt(index);
-            recipeCount = userRecipes.length; // Update recipeCount
-          });
+          await _loadProfile();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.deleteSuccessMessage ?? "Resep berhasil dihapus"),
             ),
           );
+          Navigator.pop(context, true); // Kembalikan true untuk HomeScreen
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.deleteErrorMessage?? "Gagal menghapus resep: $e"),
+              content: Text(l10n.deleteErrorMessage ?? "Gagal menghapus resep: $e"),
             ),
           );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => loading = false);
         }
       }
     }
@@ -219,8 +221,6 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-
-              /// Avatar + Nama + Bio
               Column(
                 children: [
                   CircleAvatar(
@@ -331,11 +331,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 4,
-                            mainAxisSpacing: 4,
-                            childAspectRatio: 1,
-                          ),
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 4,
+                        mainAxisSpacing: 4,
+                        childAspectRatio: 1,
+                      ),
                       itemCount: userRecipes.length,
                       itemBuilder: (context, index) {
                         final recipe = userRecipes[index];
@@ -368,8 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          l10n.deleteButton ??
-                                              'Delete', // Use localized string if available
+                                          l10n.deleteButton ?? 'Delete',
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             color: Colors.red,
@@ -473,14 +472,15 @@ class _EditProfileModalState extends State<EditProfileModal> {
           .update({
             'name': _nameController.text.trim(),
             'bio': _bioController.text.trim(),
+            'avatar_url': avatarUrl,
           })
           .eq('id', user.id);
 
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.profileUpdateSuccess)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.profileUpdateSuccess)),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -510,11 +510,11 @@ class _EditProfileModalState extends State<EditProfileModal> {
                   radius: 45,
                   backgroundImage: newAvatar != null
                       ? kIsWeb
-                            ? NetworkImage(newAvatar!.path)
-                            : FileImage(File(newAvatar!.path)) as ImageProvider
+                          ? NetworkImage(newAvatar!.path)
+                          : FileImage(File(newAvatar!.path)) as ImageProvider
                       : avatarUrl != null
-                      ? NetworkImage(avatarUrl!)
-                      : const AssetImage("assets/foto.png") as ImageProvider,
+                          ? NetworkImage(avatarUrl!)
+                          : const AssetImage("assets/foto.png") as ImageProvider,
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: CircleAvatar(

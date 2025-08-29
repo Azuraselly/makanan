@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:resep/ui/models/recipe_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resep/ui/screens/detail_recipe_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/service_bookmark.dart';
 
 class FoodCard extends StatefulWidget {
@@ -124,7 +124,8 @@ class _FoodCardState extends State<FoodCard> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(10)),
                   child: Image.network(
                     widget.recipe.image,
                     fit: BoxFit.cover,
@@ -136,7 +137,8 @@ class _FoodCardState extends State<FoodCard> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween, // 👈 kiri & kanan
                   children: [
                     Flexible(
                       child: Text(
@@ -149,11 +151,12 @@ class _FoodCardState extends State<FoodCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 10),
                     IconButton(
                       onPressed: _toggleBookmark,
                       icon: Icon(
-                        _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        _isBookmarked
+                            ? Icons.bookmark
+                            : Icons.bookmark_border,
                         size: 30,
                         color: Colors.brown,
                       ),
