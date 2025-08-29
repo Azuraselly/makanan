@@ -123,22 +123,36 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Text(
-                "Resep Baru",
-                style: GoogleFonts.ubuntu(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF02480F),
-                  shadows: [
-                    Shadow(
-                      offset: Offset(0, 2),
-                      blurRadius: 6,
-                      color: Colors.black.withOpacity(0.3),
-                    ),
-                  ],
+            // 🔙 Tombol Back + Judul
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back, color: Color(0xFF02480F)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-              ),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "Resep Baru",
+                      style: GoogleFonts.ubuntu(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF02480F),
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 2),
+                            blurRadius: 6,
+                            color: Colors.black.withOpacity(0.3),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 48), // biar teks tetap center
+              ],
             ),
             const SizedBox(height: 20),
             Center(
@@ -172,7 +186,8 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
                                           fit: BoxFit.cover,
                                         );
                                       }
-                                      return Center(child: CircularProgressIndicator());
+                                      return Center(
+                                          child: CircularProgressIndicator());
                                     },
                                   )
                                 : Image.file(
@@ -180,7 +195,8 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
                                     fit: BoxFit.cover,
                                   ),
                           )
-                        : Icon(Icons.restaurant_menu, size: 60, color: Colors.grey[400]),
+                        : Icon(Icons.restaurant_menu,
+                            size: 60, color: Colors.grey[400]),
                   ),
                   Positioned(
                     right: 8,
@@ -316,7 +332,8 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {int? maxLines}) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {int? maxLines}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -346,7 +363,8 @@ class _TambahResepBottomSheetState extends State<TambahResepBottomSheet> {
           child: TextField(
             controller: controller,
             maxLines: maxLines,
-            keyboardType: maxLines == null ? TextInputType.multiline : TextInputType.text,
+            keyboardType:
+                maxLines == null ? TextInputType.multiline : TextInputType.text,
             decoration: InputDecoration(
               hintText: "Masukkan $label",
               hintStyle: GoogleFonts.poppins(

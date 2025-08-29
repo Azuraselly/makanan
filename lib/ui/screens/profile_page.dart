@@ -508,7 +508,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                             : FileImage(File(newAvatar!.path)) as ImageProvider
                       : avatarUrl != null
                       ? NetworkImage(avatarUrl!)
-                      : const AssetImage("assets/sate.png") as ImageProvider,
+                      : const AssetImage("assets/foto.png") as ImageProvider,
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: CircleAvatar(
