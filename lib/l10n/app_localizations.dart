@@ -434,12 +434,6 @@ abstract class AppLocalizations {
   /// **'Recommended Recipe'**
   String get recommendedRecipeTitle;
 
-  /// No description provided for @seeAllButton.
-  ///
-  /// In en, this message translates to:
-  /// **'See All'**
-  String get seeAllButton;
-
   /// No description provided for @noRecipesFound.
   ///
   /// In en, this message translates to:

@@ -1,3 +1,5 @@
+// File: lib/ui/pages/profile_page.dart (atau path yang sesuai)
+
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -65,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _deleteRecipe(String recipeId, int index) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -73,83 +76,82 @@ class _ProfilePageState extends State<ProfilePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: AnimatedScale(
-            scale: 1,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutBack,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.red.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.delete_forever,
-                      color: Colors.red,
-                      size: 40,
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.red.withOpacity(0.1),
+                  child: const Icon(
+                    Icons.delete_forever,
+                    color: Colors.red,
+                    size: 40,
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Hapus Resep?",
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.deleteDialogTitle ?? "Hapus Resep?",
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Apakah kamu yakin ingin menghapus resep ini? Aksi ini tidak bisa dibatalkan.",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.center,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  l10n.deleteDialogMessage ??
+                      "Apakah kamu yakin ingin menghapus resep ini? Aksi ini tidak bisa dibatalkan.",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black54,
                   ),
-                  const SizedBox(height: 25),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 25,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 12,
                         ),
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text(
-                          "Batal",
-                          style: GoogleFonts.poppins(color: Colors.black87),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 25,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 3,
-                        ),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text("Hapus", style: GoogleFonts.poppins()),
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(
+                        l10n.cancelButton ?? "Batal",
+                        style: GoogleFonts.poppins(color: Colors.black87),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(
+                        l10n.deleteButton ?? "Hapus",
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -162,17 +164,21 @@ class _ProfilePageState extends State<ProfilePage> {
         if (mounted) {
           setState(() {
             userRecipes.removeAt(index);
-            recipeCount -= 1;
+            recipeCount = userRecipes.length; // Update recipeCount
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Resep berhasil dihapus")),
+            SnackBar(
+              content: Text(l10n.deleteSuccessMessage ?? "Resep berhasil dihapus"),
+            ),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Gagal menghapus resep: $e")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.deleteErrorMessage?? "Gagal menghapus resep: $e"),
+            ),
+          );
         }
       }
     }
@@ -342,7 +348,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: PopupMenuButton<String>(
                                 icon: const Icon(
                                   Icons.more_vert,
-                                  color: Colors.grey,
+                                  color: Color(0xFF02480F),
                                   size: 22,
                                 ),
                                 onSelected: (value) {

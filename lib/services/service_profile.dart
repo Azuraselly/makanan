@@ -1,131 +1,104 @@
+// File: lib/services/service_profile.dart
+
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import '../ui/models/recipe_model.dart';
 
-/// ServiceProfile
-/// Kelas ini digunakan untuk mengelola data profil pengguna,
-/// termasuk ambil data profile, upload avatar, dan kelola resep.
 class ServiceProfile {
   final supabase = Supabase.instance.client;
 
-  // ==========================
-  // 1. Ambil Data Profil User
-  // ==========================
+  // Ambil profil pengguna
   Future<Map<String, dynamic>?> getProfile(String userId) async {
     try {
-      final profile = await supabase
+      final response = await supabase
           .from('profiles')
           .select()
           .eq('id', userId)
           .maybeSingle();
-
-      return profile;
+      return response;
     } catch (e) {
-      print('❌ Error getProfile: $e');
-      return null;
+      throw Exception('Gagal memuat profil: $e');
     }
   }
 
-  // ==========================
-  // 2. Upload Avatar ke Storage
-  // ==========================
-  Future<String> uploadAvatar(XFile file) async {
-    final user = supabase.auth.currentUser;
-    if (user == null) throw Exception('⚠️ Pengguna belum login');
-
-    final userId = user.id;
-    final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
-    final path = '$userId/$fileName';
-
-    try {
-      print('🔹 Debug - User ID: $userId');
-      print('🔹 Debug - Upload Path: $path');
-
-      // Upload file (beda handling Web vs Mobile)
-      if (kIsWeb) {
-        final bytes = await file.readAsBytes();
-        await supabase.storage.from('avatars').uploadBinary(
-          path,
-          bytes,
-          fileOptions: FileOptions(
-            upsert: true,
-            metadata: {'user_id': userId}, // Sesuai policy bucket
-          ),
-        );
-      } else {
-        await supabase.storage.from('avatars').upload(
-          path,
-          File(file.path),
-          fileOptions: FileOptions(
-            upsert: true,
-            metadata: {'user_id': userId},
-          ),
-        );
-      }
-
-      // Ambil URL hasil upload
-      final publicUrl = supabase.storage.from('avatars').getPublicUrl(path);
-
-      print('✅ Avatar berhasil diupload: $publicUrl');
-
-      // Update URL avatar ke tabel profiles
-      await supabase
-          .from('profiles')
-          .update({'avatar_url': publicUrl})
-          .eq('id', userId);
-
-      return publicUrl;
-    } catch (e) {
-      print('❌ Error uploadAvatar: $e');
-      throw Exception('Gagal upload avatar: $e');
-    }
-  }
-
-  // ==========================
-  // 3. Hitung Jumlah Resep User
-  // ==========================
+  // Hitung jumlah resep pengguna
   Future<int> countRecipes(String userId) async {
+    try {
+      final response = await supabase
+          .from('makanan')
+          .select('id')
+          .eq('user_id', userId);
+      return (response as List).length;
+    } catch (e) {
+      throw Exception('Gagal menghitung resep: $e');
+    }
+  }
+
+  // Ambil resep pengguna
+  Future<List<Map<String, dynamic>>> getUserRecipes(String userId) async {
     try {
       final response = await supabase
           .from('makanan')
           .select()
           .eq('user_id', userId);
-
-      return (response as List).length;
+      return response as List<Map<String, dynamic>>;
     } catch (e) {
-      print('❌ Error countRecipes: $e');
-      return 0;
+      throw Exception('Gagal memuat resep: $e');
     }
   }
 
-  // ==========================
-  // 4. Ambil Daftar Resep User
-  // ==========================
-  Future<List<Map<String, dynamic>>> getUserRecipes(String userId) async {
+  // Upload avatar
+  Future<String> uploadAvatar(XFile avatarFile) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User belum login');
+
+    final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final path = '$userId/$fileName';
     try {
-      final recipes = await supabase
-          .from('makanan')
-          .select()
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
-
-      return (recipes as List).cast<Map<String, dynamic>>();
+      if (kIsWeb) {
+        final bytes = await avatarFile.readAsBytes();
+        await supabase.storage.from('avatars').uploadBinary(path, bytes);
+      } else {
+        await supabase.storage.from('avatars').upload(path, File(avatarFile.path));
+      }
+      return supabase.storage.from('avatars').getPublicUrl(path);
     } catch (e) {
-      print('❌ Error getUserRecipes: $e');
-      return [];
+      throw Exception('Gagal mengunggah avatar: $e');
     }
   }
 
-  // ==========================
-  // 5. Hapus Resep Berdasarkan ID
-  // ==========================
+  // Hapus resep
   Future<void> deleteRecipe(String recipeId) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User belum login');
+
     try {
-      await supabase.from('recipes').delete().eq('id', recipeId);
-      print('✅ Resep berhasil dihapus: $recipeId');
+      // Ambil data resep untuk mendapatkan URL gambar (jika ada)
+      final response = await supabase
+          .from('makanan')
+          .select('gambar_url')
+          .eq('id', recipeId)
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('Resep tidak ditemukan atau Anda tidak memiliki akses');
+      }
+
+      // Hapus gambar dari storage jika ada
+      if (response['gambar_url'] != null) {
+        final imagePath = response['gambar_url'].split('/').last;
+        await supabase.storage.from('makanan').remove(['$userId/$imagePath']);
+      }
+
+      // Hapus resep dari tabel
+      await supabase.from('makanan').delete().eq('id', recipeId).eq('user_id', userId);
+    } on PostgrestException catch (e) {
+      throw Exception('Gagal menghapus resep: ${e.message}');
     } catch (e) {
-      print('❌ Error deleteRecipe: $e');
+      throw Exception('Gagal menghapus resep: $e');
     }
   }
 }

@@ -184,9 +184,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get recommendedRecipeTitle => 'Resep Rekomendasi';
 
   @override
-  String get seeAllButton => 'Lihat Semua';
-
-  @override
   String get noRecipesFound => 'Tidak ada resep ditemukan';
 
   @override

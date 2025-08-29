@@ -390,10 +390,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(l10n.seeAllButton),
-                    ),
                   ],
                 ),
               ),
